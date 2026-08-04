@@ -4,7 +4,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 export interface StatCardProps {
   title: string;
   value: string | number;
-  icon: ReactNode;
+  icon?: ReactNode;
   trend?: {
     value: string;
     isPositive: boolean;
@@ -19,30 +19,21 @@ export const StatCard: React.FC<StatCardProps> = ({
   icon,
   trend,
   description,
-  variant = 'blue',
 }) => {
-  const iconBgMap = {
-    blue: 'bg-blue-50 text-blue-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-    purple: 'bg-purple-50 text-purple-600',
-    slate: 'bg-slate-100 text-slate-700',
-  };
-
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition-all">
+    <div className="bg-[#1E293B] rounded-[10px] border border-[#334155] p-4 transition-colors hover:border-[#475569]">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <span className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
           {title}
         </span>
-        <div className={`p-2.5 rounded-lg ${iconBgMap[variant]}`}>{icon}</div>
+        {icon && <div className="text-[#94A3B8] shrink-0">{icon}</div>}
       </div>
       <div className="mt-2 flex items-baseline justify-between">
-        <div className="text-2xl font-bold text-slate-900 tracking-tight">{value}</div>
+        <div className="text-xl font-bold text-[#F8FAFC] tracking-tight">{value}</div>
         {trend && (
           <div
-            className={`flex items-center text-xs font-semibold ${
-              trend.isPositive ? 'text-emerald-600' : 'text-red-600'
+            className={`flex items-center text-xs font-medium ${
+              trend.isPositive ? 'text-[#22C55E]' : 'text-[#EF4444]'
             }`}
           >
             {trend.isPositive ? (
@@ -54,7 +45,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           </div>
         )}
       </div>
-      {description && <p className="mt-1 text-xs text-slate-400">{description}</p>}
+      {description && <p className="mt-1 text-xs text-[#94A3B8]">{description}</p>}
     </div>
   );
 };

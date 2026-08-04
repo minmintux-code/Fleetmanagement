@@ -48,7 +48,7 @@ export const VehicleManagementPage: React.FC = () => {
     try {
       if (editingVehicle) {
         await vehicleService.updateVehicle(editingVehicle.id, formData);
-        showToast('Vehicle record updated successfully', 'success');
+        showToast('Vehicle updated successfully', 'success');
       } else {
         await vehicleService.createVehicle(formData);
         showToast('Vehicle registered successfully', 'success');
@@ -62,48 +62,48 @@ export const VehicleManagementPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to remove this vehicle from the fleet?')) {
+    if (window.confirm('Are you sure you want to remove this vehicle?')) {
       await vehicleService.deleteVehicle(id);
-      showToast('Vehicle removed from fleet database', 'info');
+      showToast('Vehicle removed successfully', 'info');
       fetchVehicles();
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-4">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Vehicle Fleet Registry</h1>
+          <h1 className="text-lg font-semibold text-[#111827]">Vehicles</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Manage corporate vehicles, track statuses, mileage, and service schedules.
+            Manage corporate vehicle inventory and track statuses.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-2">
+        <div className="mt-3 sm:mt-0 flex space-x-2">
           <Button
             variant="primary"
             onClick={() => {
               setEditingVehicle(null);
               setIsModalOpen(true);
             }}
-            icon={<Plus className="w-4 h-4" />}
+            icon={<Plus className="w-3.5 h-3.5" />}
           >
-            Add New Vehicle
+            Add Vehicle
           </Button>
         </div>
       </div>
 
       {/* Filters Toolbar */}
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="bg-white p-3 rounded border border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-3 gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search by license plate, VIN, make or model..."
+          placeholder="Search plate, VIN, make, model..."
         />
         <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          placeholder="All Fleet Statuses"
+          placeholder="All Statuses"
           options={[
             { value: 'AVAILABLE', label: 'Available' },
             { value: 'IN_TRANSIT', label: 'In Transit' },
@@ -115,12 +115,12 @@ export const VehicleManagementPage: React.FC = () => {
         <Select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          placeholder="All Vehicle Classifications"
+          placeholder="All Classifications"
           options={[
-            { value: 'TRUCK', label: 'Heavy Duty Trucks' },
-            { value: 'VAN', label: 'Cargo Vans' },
-            { value: 'SEDAN', label: 'Executive Sedans' },
-            { value: 'SUV', label: 'Utility SUVs' },
+            { value: 'TRUCK', label: 'Trucks' },
+            { value: 'VAN', label: 'Vans' },
+            { value: 'SEDAN', label: 'Sedans' },
+            { value: 'SUV', label: 'SUVs' },
             { value: 'TRAILER', label: 'Trailers' },
           ]}
         />
@@ -144,7 +144,7 @@ export const VehicleManagementPage: React.FC = () => {
           setIsModalOpen(false);
           setEditingVehicle(null);
         }}
-        title={editingVehicle ? `Edit Vehicle (${editingVehicle.plateNumber})` : 'Register New Fleet Vehicle'}
+        title={editingVehicle ? `Edit Vehicle (${editingVehicle.plateNumber})` : 'Add Vehicle'}
         maxWidth="xl"
       >
         <VehicleForm

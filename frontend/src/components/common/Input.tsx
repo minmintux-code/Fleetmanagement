@@ -12,30 +12,30 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+          <label className="block text-xs font-medium text-[#94A3B8] mb-1">
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#94A3B8]">
               {leftIcon}
             </div>
           )}
           <input
             ref={ref}
-            className={`w-full rounded-md border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:bg-slate-100 disabled:cursor-not-allowed ${
-              leftIcon ? 'pl-9' : 'pl-3'
-            } pr-3 py-2 ${
+            className={`w-full rounded-[10px] border text-xs text-[#F8FAFC] bg-[#0F172A] placeholder-[#64748B] transition-colors focus:outline-none focus:border-[#2563EB] disabled:bg-slate-800 disabled:cursor-not-allowed ${
+              leftIcon ? 'pl-8' : 'pl-2.5'
+            } pr-2.5 py-1.5 ${
               error
-                ? 'border-red-500 focus:border-red-500'
-                : 'border-slate-300 focus:border-blue-600'
+                ? 'border-[#EF4444] focus:border-[#EF4444]'
+                : 'border-[#334155]'
             } ${className}`}
             {...props}
           />
         </div>
-        {error && <p className="mt-1 text-xs text-red-600 font-medium">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-xs text-slate-500">{helperText}</p>}
+        {error && <p className="mt-1 text-xs text-[#EF4444]">{error}</p>}
+        {helperText && !error && <p className="mt-1 text-xs text-[#94A3B8]">{helperText}</p>}
       </div>
     );
   }

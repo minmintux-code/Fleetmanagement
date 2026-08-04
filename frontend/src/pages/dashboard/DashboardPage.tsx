@@ -1,48 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { reportService } from '../../services/reportService';
 import { vehicleService } from '../../services/vehicleService';
-import { DashboardSummary, Vehicle, AnalyticsReportData } from '../../types';
+import { driverService } from '../../services/driverService';
+import { tripService } from '../../services/tripService';
+import { DashboardSummary, Vehicle, Driver, Trip, AnalyticsReportData } from '../../types';
 import { StatCard } from '../../components/common/StatCard';
 import { Card } from '../../components/common/Card';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { GlobalError } from '../../components/common/GlobalError';
-import { EmptyState } from '../../components/common/EmptyState';
-import { FleetUtilizationChart } from '../../components/charts/FleetUtilizationChart';
+import { BarChart } from '../../components/charts/BarChart';
 import { LineChart } from '../../components/charts/LineChart';
-import { QuickActionPanel } from '../../components/modules/QuickActionPanel';
-import { VehicleStatusCard } from '../../components/modules/VehicleStatusCard';
-import { Modal } from '../../components/common/Modal';
-import { VehicleForm } from '../../components/forms/VehicleForm';
-import { TripForm } from '../../components/forms/TripForm';
-import { FuelForm } from '../../components/forms/FuelForm';
-import { MaintenanceForm } from '../../components/forms/MaintenanceForm';
-import { useNotification } from '../../hooks/useNotification';
-import { formatCurrency } from '../../utils/formatters';
-import { Truck, Users, Navigation, Fuel, Building2, DollarSign, Wrench, Receipt, Activity } from 'lucide-react';
+import { Badge } from '../../components/common/Badge';
+import { Truck, Users, Building2, Navigation } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsReportData | null>(null);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [trips, setTrips] = useState<Trip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Quick Action Modal States
-  const [activeModal, setActiveModal] = useState<'vehicle' | 'trip' | 'fuel' | 'maintenance' | null>(null);
-  const { showToast } = useNotification();
 
   const loadDashboardData = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const [sumRes, anaRes, vehRes] = await Promise.all([
+      const [sumRes, anaRes, vehRes, drvRes, tripRes] = await Promise.all([
         reportService.getDashboardSummary(),
         reportService.getAnalyticsData(),
         vehicleService.getVehicles(),
+        driverService.getDrivers(),
+        tripService.getTrips(),
       ]);
       setSummary(sumRes);
       setAnalytics(anaRes);
       setVehicles(vehRes);
+      setDrivers(drvRes);
+      setTrips(tripRes);
     } catch (err: any) {
       setError(err.message || 'Failed to load dashboard metrics');
     } finally {
@@ -54,225 +49,267 @@ export const DashboardPage: React.FC = () => {
     loadDashboardData();
   }, []);
 
-  if (isLoading) return <LoadingSpinner label="Loading enterprise dashboard insights..." />;
+  if (isLoading) return <LoadingSpinner label="Loading dashboard analytics..." />;
   if (error || !summary || !analytics)
     return <GlobalError title="Dashboard Load Failure" message={error || undefined} onRetry={loadDashboardData} />;
 
+  // Checks for real data presence
+  const hasOverviewData =
+    (summary.totalVehicles || 0) > 0 ||
+    (summary.totalDrivers || 0) > 0 ||
+    (summary.totalCustomers || 0) > 0 ||
+    (summary.ongoingTrips || 0) > 0;
+
+  const hasAnalyticsData =
+    analytics.monthlyExpenses &&
+    analytics.monthlyExpenses.length > 0 &&
+    analytics.monthlyExpenses.some((m) => m.fuel > 0 || m.maintenance > 0 || m.operational > 0);
+
   return (
     <div className="space-y-6">
-      {/* Page Header Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#334155] pb-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Fleet Command Center</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time operational analytics, active dispatch metrics, and fleet utilization.
+          <h1 className="text-xl font-bold text-[#F8FAFC]">Fleet Management Dashboard</h1>
+          <p className="text-xs text-[#94A3B8] mt-0.5">
+            Real-time fleet activity, operations metrics, and inventory summary.
           </p>
-        </div>
-        <div className="mt-3 sm:mt-0 flex items-center space-x-2">
-          <span className="inline-flex items-center text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-md">
-            <Activity className="w-4 h-4 text-emerald-500 mr-2" /> Live Fleet Feed
-          </span>
         </div>
       </div>
 
-      {/* Top Level Metric Cards Grid */}
+      {/* Top Row: 4 Statistic Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Vehicles"
-          value={summary.totalVehicles}
-          icon={<Truck className="w-5 h-5" />}
-          description={`${summary.activeVehicles} active in service`}
-          variant="blue"
+          value={`${summary.totalVehicles || 0} Vehicles`}
+          icon={<Truck className="w-5 h-5 text-[#2563EB]" />}
         />
         <StatCard
-          title="Active Drivers"
-          value={summary.activeDrivers}
-          icon={<Users className="w-5 h-5" />}
-          description={`Out of ${summary.totalDrivers} registered drivers`}
-          variant="emerald"
+          title="Total Drivers"
+          value={`${summary.totalDrivers || 0} Drivers`}
+          icon={<Users className="w-5 h-5 text-[#22C55E]" />}
         />
         <StatCard
           title="Total Customers"
-          value={summary.totalCustomers || 0}
-          icon={<Building2 className="w-5 h-5" />}
-          description="Registered enterprise clients"
-          variant="purple"
+          value={`${summary.totalCustomers || 0} Customers`}
+          icon={<Building2 className="w-5 h-5 text-[#F59E0B]" />}
         />
         <StatCard
-          title="Ongoing Trips"
-          value={summary.ongoingTrips}
-          icon={<Navigation className="w-5 h-5" />}
-          description="In-transit active dispatches"
-          variant="amber"
-        />
-        <StatCard
-          title="Total Revenue"
-          value={formatCurrency(summary.totalRevenue || 0)}
-          icon={<DollarSign className="w-5 h-5" />}
-          description="Rental & booking earnings"
-          variant="emerald"
-        />
-        <StatCard
-          title="Total Expenses"
-          value={formatCurrency(summary.totalExpenses || 0)}
-          icon={<Receipt className="w-5 h-5" />}
-          description="Overhead & miscellaneous"
-          variant="blue"
-        />
-        <StatCard
-          title="Fuel Cost"
-          value={formatCurrency(summary.totalFuelCostThisMonth || 0)}
-          icon={<Fuel className="w-5 h-5" />}
-          description="Fleet fuel expenditure"
-          variant="purple"
-        />
-        <StatCard
-          title="Maintenance Cost"
-          value={formatCurrency(summary.totalMaintenanceCostThisMonth || 0)}
-          icon={<Wrench className="w-5 h-5" />}
-          description="Service & repair costs"
-          variant="amber"
+          title="Total Trips"
+          value={`${summary.ongoingTrips || 0} Trips`}
+          icon={<Navigation className="w-5 h-5 text-[#EF4444]" />}
         />
       </div>
 
-      {/* Quick Action Operations Panel */}
-      <QuickActionPanel
-        onAddVehicle={() => setActiveModal('vehicle')}
-        onDispatchTrip={() => setActiveModal('trip')}
-        onLogFuel={() => setActiveModal('fuel')}
-        onScheduleMaintenance={() => setActiveModal('maintenance')}
-      />
+      {/* Dashboard Graphs: Fleet Overview & Monthly Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Chart 1: Fleet Overview (Bar Chart) */}
+        <Card title="Fleet Overview" subtitle="Activity overview across key categories">
+          {hasOverviewData ? (
+            <BarChart
+              labels={['Vehicles', 'Drivers', 'Customers', 'Trips']}
+              datasets={[
+                {
+                  label: 'Count',
+                  data: [
+                    summary.totalVehicles || 0,
+                    summary.totalDrivers || 0,
+                    summary.totalCustomers || 0,
+                    summary.ongoingTrips || 0,
+                  ],
+                  backgroundColor: ['#2563EB', '#22C55E', '#F59E0B', '#EF4444'],
+                },
+              ]}
+              height={260}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-52 text-xs text-[#94A3B8] border border-dashed border-[#334155] rounded-[10px]">
+              No data available
+            </div>
+          )}
+        </Card>
 
-      {/* Charts & Analytics Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card
-            title="Monthly Operating Expenditures"
-            subtitle="Comparison of fuel refills vs maintenance repair costs"
-          >
+        {/* Chart 2: Monthly Fleet Analytics (Line Chart) */}
+        <Card title="Monthly Fleet Analytics" subtitle="Trips volume, fuel cost, and maintenance cost trends">
+          {hasAnalyticsData ? (
             <LineChart
               labels={analytics.monthlyExpenses.map((m) => m.month)}
               datasets={[
                 {
-                  label: 'Fuel Expenditures (₹)',
+                  label: 'Fuel Cost (₹)',
                   data: analytics.monthlyExpenses.map((m) => m.fuel),
-                  borderColor: '#2563EB',
+                  borderColor: '#22C55E',
                 },
                 {
-                  label: 'Maintenance Costs (₹)',
+                  label: 'Maintenance Cost (₹)',
                   data: analytics.monthlyExpenses.map((m) => m.maintenance),
                   borderColor: '#F59E0B',
                 },
+                {
+                  label: 'Operational Expense (₹)',
+                  data: analytics.monthlyExpenses.map((m) => m.operational),
+                  borderColor: '#2563EB',
+                },
               ]}
-              height={280}
+              height={260}
             />
-          </Card>
-        </div>
+          ) : (
+            <div className="flex items-center justify-center h-52 text-xs text-[#94A3B8] border border-dashed border-[#334155] rounded-[10px]">
+              No data available
+            </div>
+          )}
+        </Card>
+      </div>
 
-        <div>
-          <Card title="Fleet Status Breakdown" subtitle="Current status distribution across active fleet">
-            <FleetUtilizationChart
-              available={summary.activeVehicles - summary.ongoingTrips}
-              inTransit={summary.ongoingTrips}
-              inMaintenance={summary.maintenanceVehicles}
-              rented={0}
-              outOfService={0}
-            />
+      {/* Recent Activity Section */}
+      <div className="space-y-5">
+        <h2 className="text-base font-semibold text-[#F8FAFC]">Recent Activity</h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recent Vehicles Table */}
+          <Card title="Recent Vehicles" subtitle="Latest registered fleet vehicles">
+            {vehicles.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-[#F8FAFC]">
+                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                    <tr>
+                      <th className="px-3 py-2">Plate</th>
+                      <th className="px-3 py-2">Make / Model</th>
+                      <th className="px-3 py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#334155]/60">
+                    {vehicles.slice(0, 5).map((v, idx) => (
+                      <tr
+                        key={v.id}
+                        className={`${
+                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-[#334155]/50 transition-colors`}
+                      >
+                        <td className="px-3 py-2.5 font-medium">{v.plateNumber}</td>
+                        <td className="px-3 py-2.5 text-[#94A3B8]">
+                          {v.make} {v.model}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <Badge
+                            variant={
+                              v.status === 'AVAILABLE'
+                                ? 'success'
+                                : v.status === 'IN_TRANSIT'
+                                ? 'info'
+                                : v.status === 'IN_MAINTENANCE'
+                                ? 'warning'
+                                : 'secondary'
+                            }
+                          >
+                            {v.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {/* Recent Drivers Table */}
+          <Card title="Recent Drivers" subtitle="Latest active fleet operators">
+            {drivers.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-[#F8FAFC]">
+                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                    <tr>
+                      <th className="px-3 py-2">Name</th>
+                      <th className="px-3 py-2">License</th>
+                      <th className="px-3 py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#334155]/60">
+                    {drivers.slice(0, 5).map((d, idx) => (
+                      <tr
+                        key={d.id}
+                        className={`${
+                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-[#334155]/50 transition-colors`}
+                      >
+                        <td className="px-3 py-2.5 font-medium">{d.fullName}</td>
+                        <td className="px-3 py-2.5 text-[#94A3B8]">{d.licenseNumber}</td>
+                        <td className="px-3 py-2.5">
+                          <Badge
+                            variant={
+                              d.status === 'AVAILABLE'
+                                ? 'success'
+                                : d.status === 'ON_TRIP'
+                                ? 'info'
+                                : 'secondary'
+                            }
+                          >
+                            {d.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {/* Recent Trips Table */}
+          <Card title="Recent Trips" subtitle="Latest dispatches and trips">
+            {trips.length === 0 ? (
+              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-[#F8FAFC]">
+                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                    <tr>
+                      <th className="px-3 py-2">Trip Code</th>
+                      <th className="px-3 py-2">Route</th>
+                      <th className="px-3 py-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#334155]/60">
+                    {trips.slice(0, 5).map((t, idx) => (
+                      <tr
+                        key={t.id}
+                        className={`${
+                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-[#334155]/50 transition-colors`}
+                      >
+                        <td className="px-3 py-2.5 font-medium">{t.tripCode || t.id.slice(0, 8)}</td>
+                        <td className="px-3 py-2.5 text-[#94A3B8]">
+                          {t.origin} &rarr; {t.destination}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <Badge
+                            variant={
+                              t.status === 'COMPLETED'
+                                ? 'success'
+                                : t.status === 'IN_PROGRESS'
+                                ? 'info'
+                                : t.status === 'SCHEDULED'
+                                ? 'warning'
+                                : 'danger'
+                            }
+                          >
+                            {t.status}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </Card>
         </div>
       </div>
-
-      {/* Vehicle Status Spotlight Grid */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-            Vehicle Status Spotlight
-          </h3>
-        </div>
-        {vehicles.length === 0 ? (
-          <EmptyState
-            title="No vehicles in database"
-            description="Add vehicles using the quick action button above or insert records via MySQL Workbench."
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {vehicles.slice(0, 3).map((v) => (
-              <VehicleStatusCard key={v.id} vehicle={v} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Quick Action Modals */}
-      <Modal
-        isOpen={activeModal === 'vehicle'}
-        onClose={() => setActiveModal(null)}
-        title="Register New Fleet Vehicle"
-        maxWidth="xl"
-      >
-        <VehicleForm
-          onSubmit={async (data) => {
-            await vehicleService.createVehicle(data);
-            showToast('New vehicle registered successfully', 'success');
-            setActiveModal(null);
-            loadDashboardData();
-          }}
-          onCancel={() => setActiveModal(null)}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={activeModal === 'trip'}
-        onClose={() => setActiveModal(null)}
-        title="Dispatch New Trip"
-        maxWidth="lg"
-      >
-        <TripForm
-          vehicles={vehicles.map((v) => ({ id: v.id, plateNumber: v.plateNumber, make: v.make }))}
-          drivers={[{ id: 'drv-1', fullName: 'Alexander Hayes' }, { id: 'drv-2', fullName: 'Elena Rostova' }]}
-          onSubmit={async () => {
-            showToast('Trip dispatched successfully', 'success');
-            setActiveModal(null);
-            loadDashboardData();
-          }}
-          onCancel={() => setActiveModal(null)}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={activeModal === 'fuel'}
-        onClose={() => setActiveModal(null)}
-        title="Log Fuel Refill"
-        maxWidth="md"
-      >
-        <FuelForm
-          vehicles={vehicles.map((v) => ({ id: v.id, plateNumber: v.plateNumber }))}
-          drivers={[{ id: 'drv-1', fullName: 'Alexander Hayes' }]}
-          onSubmit={async () => {
-            showToast('Fuel transaction logged', 'success');
-            setActiveModal(null);
-            loadDashboardData();
-          }}
-          onCancel={() => setActiveModal(null)}
-        />
-      </Modal>
-
-      <Modal
-        isOpen={activeModal === 'maintenance'}
-        onClose={() => setActiveModal(null)}
-        title="Schedule Maintenance Repair"
-        maxWidth="lg"
-      >
-        <MaintenanceForm
-          vehicles={vehicles.map((v) => ({ id: v.id, plateNumber: v.plateNumber }))}
-          onSubmit={async () => {
-            showToast('Maintenance service scheduled', 'success');
-            setActiveModal(null);
-            loadDashboardData();
-          }}
-          onCancel={() => setActiveModal(null)}
-        />
-      </Modal>
     </div>
   );
 };

@@ -24,7 +24,7 @@ export const MainLayout: React.FC = () => {
     { label: 'Drivers & Operators', path: '/drivers' },
     { label: 'Active Trips & Dispatch', path: '/trips' },
     { label: 'Fuel Logs & Expense', path: '/fuel' },
-    { label: 'Maintenance & Service Workorders', path: '/maintenance' },
+    { label: 'Maintenance & Service', path: '/maintenance' },
     { label: 'Rentals & Leases', path: '/rentals' },
   ];
 
@@ -34,33 +34,33 @@ export const MainLayout: React.FC = () => {
   };
 
   const toastIcons = {
-    success: <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-2 shrink-0" />,
-    error: <AlertCircle className="w-4 h-4 text-red-500 mr-2 shrink-0" />,
-    warning: <AlertTriangle className="w-4 h-4 text-amber-500 mr-2 shrink-0" />,
-    info: <Info className="w-4 h-4 text-blue-500 mr-2 shrink-0" />,
+    success: <CheckCircle2 className="w-4 h-4 text-[#22C55E] mr-2 shrink-0" />,
+    error: <AlertCircle className="w-4 h-4 text-[#EF4444] mr-2 shrink-0" />,
+    warning: <AlertTriangle className="w-4 h-4 text-[#F59E0B] mr-2 shrink-0" />,
+    info: <Info className="w-4 h-4 text-[#2563EB] mr-2 shrink-0" />,
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex text-slate-900">
+    <div className="min-h-screen bg-[#0F172A] flex text-[#F8FAFC]">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${
-          sidebarOpen ? 'md:ml-64' : 'md:ml-20'
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-150 ${
+          sidebarOpen ? 'md:ml-64' : 'md:ml-16'
         }`}
       >
         {/* Top Header Navigation */}
         <TopNavigation onOpenSearchModal={() => setIsSearchOpen(true)} />
 
         {/* Breadcrumb Bar */}
-        <div className="bg-white border-b border-slate-200 px-4 md:px-6 py-2.5">
+        <div className="bg-[#0F172A] border-b border-[#334155] px-4 md:px-6 py-2">
           <Breadcrumb />
         </div>
 
         {/* Page Main Content Container */}
-        <main className="flex-1 p-4 md:p-6">
+        <main className="flex-1 p-4 md:p-6 bg-[#0F172A]">
           <Outlet />
         </main>
 
@@ -72,7 +72,7 @@ export const MainLayout: React.FC = () => {
       <Modal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        title="Fleet Enterprise Global Search"
+        title="Global Search"
         maxWidth="lg"
       >
         <div className="space-y-4">
@@ -82,18 +82,18 @@ export const MainLayout: React.FC = () => {
             placeholder="Type vehicle plate, driver name, trip code, or module..."
           />
           <div>
-            <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Quick Module Navigation
+            <h4 className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">
+              Navigation Links
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {quickNavLinks.map((item) => (
                 <button
                   key={item.path}
                   onClick={() => handleQuickNav(item.path)}
-                  className="flex items-center justify-between p-2.5 text-left rounded-md border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 text-xs font-medium text-slate-700 transition-colors"
+                  className="flex items-center justify-between p-2 text-left rounded-[10px] border border-[#334155] hover:border-[#2563EB] hover:bg-[#1E293B] text-xs font-medium text-[#F8FAFC] transition-colors"
                 >
                   <span>{item.label}</span>
-                  <span className="text-[10px] text-slate-400">&rarr;</span>
+                  <span className="text-[10px] text-[#94A3B8]">&rarr;</span>
                 </button>
               ))}
             </div>
@@ -103,11 +103,11 @@ export const MainLayout: React.FC = () => {
 
       {/* Toast Alert Queue Container */}
       {notifCtx && notifCtx.toasts.length > 0 && (
-        <div className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-sm">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-2 max-w-sm">
           {notifCtx.toasts.map((toast) => (
             <div
               key={toast.id}
-              className="flex items-center justify-between bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg border border-slate-800 text-xs font-medium"
+              className="flex items-center justify-between bg-[#1E293B] text-[#F8FAFC] px-3.5 py-2.5 rounded-[10px] border border-[#334155] text-xs font-medium shadow-md"
             >
               <div className="flex items-center">
                 {toastIcons[toast.type]}
@@ -115,7 +115,7 @@ export const MainLayout: React.FC = () => {
               </div>
               <button
                 onClick={() => notifCtx.removeToast(toast.id)}
-                className="ml-3 text-slate-400 hover:text-white"
+                className="ml-3 text-[#94A3B8] hover:text-white"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

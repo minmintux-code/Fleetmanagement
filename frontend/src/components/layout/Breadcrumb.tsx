@@ -23,12 +23,12 @@ export const Breadcrumb: React.FC = () => {
   const pathnames = location.pathname.split('/').filter((x) => x);
 
   return (
-    <nav className="flex items-center text-xs font-medium text-slate-500 py-1" aria-label="Breadcrumb">
+    <nav className="flex items-center text-xs font-medium text-[#94A3B8] py-1" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-2">
         <li className="inline-flex items-center">
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-slate-500 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center text-[#94A3B8] hover:text-[#2563EB] transition-colors"
           >
             <Home className="w-3.5 h-3.5 mr-1" />
             Home
@@ -41,11 +41,11 @@ export const Breadcrumb: React.FC = () => {
 
           return (
             <li key={routeTo} className="inline-flex items-center">
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400 mx-1" />
+              <ChevronRight className="w-3.5 h-3.5 text-[#64748B] mx-1" />
               {isLast ? (
-                <span className="text-slate-800 font-semibold">{displayName}</span>
+                <span className="text-[#F8FAFC] font-medium">{displayName}</span>
               ) : (
-                <Link to={routeTo} className="text-slate-500 hover:text-blue-600 transition-colors">
+                <Link to={routeTo} className="text-[#94A3B8] hover:text-[#2563EB] transition-colors">
                   {displayName}
                 </Link>
               )}

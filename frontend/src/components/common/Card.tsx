@@ -18,17 +18,17 @@ export const Card: React.FC<CardProps> = ({
   padding = true,
 }) => {
   return (
-    <div className={`bg-white rounded-lg border border-slate-200 shadow-xs ${className}`}>
+    <div className={`bg-[#1E293B] rounded-[10px] border border-[#334155] ${className}`}>
       {(title || action) && (
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-[#334155] px-5 py-3.5">
           <div>
-            {title && <h3 className="text-base font-semibold text-slate-900">{title}</h3>}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {title && <h3 className="text-sm font-semibold text-[#F8FAFC]">{title}</h3>}
+            {subtitle && <p className="text-xs text-[#94A3B8] mt-0.5">{subtitle}</p>}
           </div>
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className={padding ? 'p-6' : ''}>{children}</div>
+      <div className={padding ? 'p-5' : ''}>{children}</div>
     </div>
   );
 };

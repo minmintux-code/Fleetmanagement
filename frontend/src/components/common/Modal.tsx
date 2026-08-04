@@ -43,23 +43,23 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-[#0F172A]/70 transition-opacity"
         onClick={onClose}
       />
       <div className="flex min-h-full items-center justify-center p-4">
         <div
-          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-lg bg-white shadow-xl transition-all border border-slate-200 z-10`}
+          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-[10px] bg-[#1E293B] border border-[#334155] z-10 shadow-lg`}
         >
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-            <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
+          <div className="flex items-center justify-between border-b border-[#334155] px-5 py-3.5">
+            <h3 className="text-sm font-semibold text-[#F8FAFC]">{title}</h3>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-md hover:bg-slate-100"
+              className="text-[#94A3B8] hover:text-[#F8FAFC] transition-colors p-1 rounded hover:bg-[#334155]"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="px-6 py-4">{children}</div>
+          <div className="px-5 py-4 text-[#F8FAFC]">{children}</div>
         </div>
       </div>
     </div>

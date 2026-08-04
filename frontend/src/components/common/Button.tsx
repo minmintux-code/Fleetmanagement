@@ -18,21 +18,21 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-all rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-colors rounded-[10px] focus:outline-none focus:ring-1 focus:ring-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed';
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-5 py-2.5 text-base',
+    sm: 'px-2.5 py-1 text-xs',
+    md: 'px-3.5 py-1.5 text-xs',
+    lg: 'px-4 py-2 text-sm',
   };
 
   const variantClasses = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 shadow-sm',
-    secondary: 'bg-slate-700 hover:bg-slate-800 text-white focus:ring-slate-500 shadow-sm',
-    outline: 'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-blue-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500 shadow-sm',
-    success: 'bg-emerald-600 hover:bg-emerald-700 text-white focus:ring-emerald-500 shadow-sm',
-    ghost: 'bg-transparent hover:bg-slate-100 text-slate-700 focus:ring-slate-400',
+    primary: 'bg-[#2563EB] hover:bg-blue-600 text-[#F8FAFC]',
+    secondary: 'bg-slate-700 hover:bg-slate-600 text-[#F8FAFC]',
+    outline: 'border border-[#334155] bg-[#1E293B] hover:bg-[#334155] text-[#F8FAFC]',
+    danger: 'bg-[#EF4444] hover:bg-red-600 text-white',
+    success: 'bg-[#22C55E] hover:bg-green-600 text-white',
+    ghost: 'bg-transparent hover:bg-[#334155] text-[#94A3B8] hover:text-[#F8FAFC]',
   };
 
   return (
@@ -42,9 +42,9 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
       ) : icon ? (
-        <span className="mr-2 inline-flex">{icon}</span>
+        <span className="mr-1.5 inline-flex">{icon}</span>
       ) : null}
       {children}
     </button>

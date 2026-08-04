@@ -42,7 +42,7 @@ export const LineChart: React.FC<LineChartProps> = ({ labels, datasets, height =
     datasets: datasets.map((ds) => ({
       ...ds,
       borderColor: ds.borderColor || '#2563EB',
-      backgroundColor: ds.backgroundColor || 'rgba(37, 99, 235, 0.08)',
+      backgroundColor: ds.backgroundColor || 'rgba(37, 99, 235, 0.12)',
       tension: 0.35,
       pointRadius: 4,
       pointHoverRadius: 6,
@@ -56,6 +56,7 @@ export const LineChart: React.FC<LineChartProps> = ({ labels, datasets, height =
       legend: {
         position: 'top' as const,
         labels: {
+          color: '#F8FAFC',
           font: { family: 'Inter', size: 12 },
           usePointStyle: true,
         },
@@ -64,11 +65,11 @@ export const LineChart: React.FC<LineChartProps> = ({ labels, datasets, height =
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { family: 'Inter', size: 11 } },
+        ticks: { color: '#94A3B8', font: { family: 'Inter', size: 11 } },
       },
       y: {
-        grid: { color: '#f1f5f9' },
-        ticks: { font: { family: 'Inter', size: 11 } },
+        grid: { color: '#334155' },
+        ticks: { color: '#94A3B8', font: { family: 'Inter', size: 11 } },
       },
     },
   };

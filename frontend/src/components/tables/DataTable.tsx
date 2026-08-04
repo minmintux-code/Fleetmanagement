@@ -27,8 +27,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-8 text-center text-slate-500 text-sm">
-        <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent mb-2" />
+      <div className="bg-[#1E293B] rounded-[10px] border border-[#334155] p-6 text-center text-[#94A3B8] text-xs">
+        <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-[#2563EB] border-t-transparent mb-2" />
         <p>Loading table records...</p>
       </div>
     );
@@ -39,28 +39,30 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto bg-white rounded-lg border border-slate-200 shadow-2xs">
-      <table className="w-full text-left text-sm text-slate-700 border-collapse">
-        <thead className="bg-slate-100/80 text-xs uppercase font-semibold text-slate-600 border-b border-slate-200 tracking-wider">
+    <div className="overflow-x-auto bg-[#1E293B] rounded-[10px] border border-[#334155]">
+      <table className="w-full text-left text-xs text-[#F8FAFC] border-collapse">
+        <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
           <tr>
             {columns.map((col, index) => (
-              <th key={index} className={`px-4 py-3.5 ${col.className || ''}`}>
+              <th key={index} className={`px-3.5 py-2.5 ${col.className || ''}`}>
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-200/70">
-          {data.map((item) => (
+        <tbody className="divide-y divide-[#334155]/60">
+          {data.map((item, idx) => (
             <tr
               key={keyExtractor(item)}
               onClick={() => onRowClick && onRowClick(item)}
-              className={`hover:bg-slate-50/80 transition-colors ${
+              className={`${
+                idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
+              } hover:bg-[#334155]/50 transition-colors ${
                 onRowClick ? 'cursor-pointer' : ''
               }`}
             >
               {columns.map((col, index) => (
-                <td key={index} className={`px-4 py-3.5 ${col.className || ''}`}>
+                <td key={index} className={`px-3.5 py-2.5 ${col.className || ''}`}>
                   {col.cell ? col.cell(item) : col.accessorKey ? String(item[col.accessorKey] ?? '') : ''}
                 </td>
               ))}

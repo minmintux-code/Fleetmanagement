@@ -32,7 +32,7 @@ export const DriverManagementPage: React.FC = () => {
       });
       setDrivers(data);
     } catch {
-      showToast('Failed to fetch drivers directory', 'error');
+      showToast('Failed to fetch drivers list', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -46,10 +46,10 @@ export const DriverManagementPage: React.FC = () => {
     try {
       if (editingDriver) {
         await driverService.updateDriver(editingDriver.id, formData);
-        showToast('Driver profile updated', 'success');
+        showToast('Driver updated successfully', 'success');
       } else {
         await driverService.createDriver(formData);
-        showToast('Driver profile registered', 'success');
+        showToast('Driver registered successfully', 'success');
       }
       setIsModalOpen(false);
       setEditingDriver(null);
@@ -60,41 +60,41 @@ export const DriverManagementPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to remove this driver profile?')) {
+    if (window.confirm('Are you sure you want to remove this driver?')) {
       await driverService.deleteDriver(id);
-      showToast('Driver removed from database', 'info');
+      showToast('Driver removed successfully', 'info');
       fetchDrivers();
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Driver & Operator Directory</h1>
+          <h1 className="text-lg font-semibold text-[#111827]">Drivers</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Track commercial licenses, safety ratings, active trip assignments, and statuses.
+            Manage commercial drivers, license details, and status.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className="mt-3 sm:mt-0">
           <Button
             variant="primary"
             onClick={() => {
               setEditingDriver(null);
               setIsModalOpen(true);
             }}
-            icon={<Plus className="w-4 h-4" />}
+            icon={<Plus className="w-3.5 h-3.5" />}
           >
-            Register New Driver
+            Add Driver
           </Button>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="bg-white p-3 rounded border border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-2 gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Search driver name, email, license number..."
+          placeholder="Search name, email, license..."
         />
         <Select
           value={statusFilter}
@@ -102,7 +102,7 @@ export const DriverManagementPage: React.FC = () => {
           placeholder="All Driver Statuses"
           options={[
             { value: 'AVAILABLE', label: 'Available' },
-            { value: 'ON_TRIP', label: 'On Active Trip' },
+            { value: 'ON_TRIP', label: 'On Trip' },
             { value: 'OFF_DUTY', label: 'Off Duty' },
             { value: 'SUSPENDED', label: 'Suspended' },
           ]}
@@ -125,7 +125,7 @@ export const DriverManagementPage: React.FC = () => {
           setIsModalOpen(false);
           setEditingDriver(null);
         }}
-        title={editingDriver ? `Edit Driver (${editingDriver.fullName})` : 'Register New Driver'}
+        title={editingDriver ? `Edit Driver (${editingDriver.fullName})` : 'Add Driver'}
         maxWidth="lg"
       >
         <DriverForm

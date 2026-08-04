@@ -39,17 +39,17 @@ export const BarChart: React.FC<BarChartProps> = ({ labels, datasets, height = 3
     plugins: {
       legend: {
         position: 'top' as const,
-        labels: { font: { family: 'Inter', size: 12 }, usePointStyle: true },
+        labels: { color: '#F8FAFC', font: { family: 'Inter', size: 12 }, usePointStyle: true },
       },
     },
     scales: {
       x: {
         grid: { display: false },
-        ticks: { font: { family: 'Inter', size: 11 } },
+        ticks: { color: '#94A3B8', font: { family: 'Inter', size: 11 } },
       },
       y: {
-        grid: { color: '#f1f5f9' },
-        ticks: { font: { family: 'Inter', size: 11 } },
+        grid: { color: '#334155' },
+        ticks: { color: '#94A3B8', font: { family: 'Inter', size: 11 } },
       },
     },
   };
