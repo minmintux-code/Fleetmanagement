@@ -9,9 +9,9 @@ export const PermissionDeniedPage: React.FC = () => {
       <div className="p-4 bg-red-50 text-red-600 rounded-full mb-4">
         <ShieldAlert className="w-12 h-12" />
       </div>
-      <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">403</h1>
-      <h2 className="text-lg font-semibold text-slate-700 mt-2">Access Denied</h2>
-      <p className="text-sm text-slate-500 max-w-md mt-1 mb-6">
+      <h1 className="text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">403</h1>
+      <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mt-2">Access Denied</h2>
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mt-1 mb-6">
         You do not have the required administrative role or privileges to access this module.
       </p>
       <Link to="/dashboard">

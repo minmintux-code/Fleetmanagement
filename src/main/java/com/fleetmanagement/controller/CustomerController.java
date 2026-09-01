@@ -2,14 +2,17 @@ package com.fleetmanagement.controller;
 
 import com.fleetmanagement.entity.Customer;
 import com.fleetmanagement.repository.CustomerRepository;
+import com.fleetmanagement.config.AuthContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.fleetmanagement.config.AuthContext;
 import org.springframework.http.ResponseEntity;
+import com.fleetmanagement.config.AuthContext;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/customers")
-@CrossOrigin(origins = "*")
+
 public class CustomerController {
 
     @Autowired
@@ -17,7 +20,7 @@ public class CustomerController {
 
     @GetMapping
     public ResponseEntity<List<Customer>> getCustomers() {
-        return ResponseEntity.ok(customerRepository.findByIsDeletedFalse());
+        return ResponseEntity.ok(customerRepository.findByOwnerIdAndIsDeletedFalse(AuthContext.getUserId()));
     }
 
     @PostMapping

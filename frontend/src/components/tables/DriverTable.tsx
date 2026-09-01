@@ -23,12 +23,12 @@ export const DriverTable: React.FC<DriverTableProps> = ({
       header: 'Driver Name & Contact',
       cell: (d) => (
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs shrink-0">
+          <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center text-xs shrink-0">
             {d.firstName.charAt(0)}
           </div>
           <div>
-            <span className="font-semibold text-slate-900 block">{d.fullName}</span>
-            <span className="text-xs text-slate-500">{d.email}</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-100 block">{d.fullName}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{d.email}</span>
           </div>
         </div>
       ),
@@ -37,8 +37,8 @@ export const DriverTable: React.FC<DriverTableProps> = ({
       header: 'License No.',
       cell: (d) => (
         <div>
-          <span className="font-mono text-xs text-slate-800 font-medium block">{d.licenseNumber}</span>
-          <span className="text-[10px] text-slate-500">{d.licenseCategory}</span>
+          <span className="font-mono text-xs text-slate-800 dark:text-slate-100 font-medium block">{d.licenseNumber}</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400">{d.licenseCategory}</span>
         </div>
       ),
     },
@@ -54,7 +54,7 @@ export const DriverTable: React.FC<DriverTableProps> = ({
       cell: (d) => (
         <div className="flex items-center space-x-1.5">
           <Shield className="w-3.5 h-3.5 text-emerald-600" />
-          <span className="font-bold text-slate-900 text-xs">{d.safetyScore} / 100</span>
+          <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">{d.safetyScore} / 100</span>
         </div>
       ),
     },
@@ -74,7 +74,7 @@ export const DriverTable: React.FC<DriverTableProps> = ({
           {onEdit && (
             <button
               onClick={() => onEdit(d)}
-              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100"
+              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:bg-slate-800"
               title="Edit Driver"
             >
               <Edit className="w-4 h-4" />

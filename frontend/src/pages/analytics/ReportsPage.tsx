@@ -32,8 +32,8 @@ export const ReportsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Executive Analytics & Reports</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Executive Analytics & Reports</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Deep dive into fleet financial expenditures, fuel efficiency, and driver safety performance metrics.
           </p>
         </div>
@@ -87,7 +87,7 @@ export const ReportsPage: React.FC = () => {
         <Card title="Highest Fuel Consuming Vehicles" subtitle="Monthly fuel volume and cost tracking">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="py-2.5 px-3">Vehicle Plate & Model</th>
                   <th className="py-2.5 px-3">Monthly Liters</th>
@@ -97,13 +97,13 @@ export const ReportsPage: React.FC = () => {
               <tbody className="divide-y divide-slate-100">
                 {data.topFuelConsumingVehicles.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-slate-500">No fuel records found in database.</td>
+                    <td colSpan={3} className="py-6 text-center text-slate-500 dark:text-slate-400">No fuel records found in database.</td>
                   </tr>
                 ) : (
                   data.topFuelConsumingVehicles.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-3 font-semibold text-slate-800">{item.vehiclePlate}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{formatNumber(item.liters)} L</td>
+                    <tr key={idx} className="hover:bg-slate-50 dark:bg-slate-900/50">
+                      <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-100">{item.vehiclePlate}</td>
+                      <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">{formatNumber(item.liters)} L</td>
                       <td className="py-2.5 px-3 font-bold text-emerald-600">{formatCurrency(item.cost)}</td>
                     </tr>
                   ))
@@ -117,7 +117,7 @@ export const ReportsPage: React.FC = () => {
         <Card title="Driver Safety & Trip Performance" subtitle="Rankings based on completed trips and safety index">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
                 <tr>
                   <th className="py-2.5 px-3">Driver Name</th>
                   <th className="py-2.5 px-3">Completed Trips</th>
@@ -127,13 +127,13 @@ export const ReportsPage: React.FC = () => {
               <tbody className="divide-y divide-slate-100">
                 {data.driverPerformanceMetrics.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-slate-500">No driver performance records found in database.</td>
+                    <td colSpan={3} className="py-6 text-center text-slate-500 dark:text-slate-400">No driver performance records found in database.</td>
                   </tr>
                 ) : (
                   data.driverPerformanceMetrics.map((driver, idx) => (
-                    <tr key={idx} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-3 font-semibold text-slate-800">{driver.driverName}</td>
-                      <td className="py-2.5 px-3 text-slate-600">{driver.trips} trips</td>
+                    <tr key={idx} className="hover:bg-slate-50 dark:bg-slate-900/50">
+                      <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-100">{driver.driverName}</td>
+                      <td className="py-2.5 px-3 text-slate-600 dark:text-slate-400">{driver.trips} trips</td>
                       <td className="py-2.5 px-3 font-bold text-blue-600">{driver.safetyScore} / 100</td>
                     </tr>
                   ))

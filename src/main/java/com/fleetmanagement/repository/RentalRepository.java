@@ -43,4 +43,8 @@ public interface RentalRepository extends JpaRepository<Rental, Long>, JpaSpecif
     long countByIsDeletedFalse();
     long countByStatusAndIsDeletedFalse(String status);
     boolean existsByRentalCodeAndIsDeletedFalse(String rentalCode);
+
+    List<Rental> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Rental> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

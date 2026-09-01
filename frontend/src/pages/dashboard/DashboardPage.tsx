@@ -68,10 +68,10 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#334155] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 dark:border-[#334155] pb-3">
         <div>
-          <h1 className="text-xl font-bold text-[#F8FAFC]">Fleet Management Dashboard</h1>
-          <p className="text-xs text-[#94A3B8] mt-0.5">
+          <h1 className="text-xl font-bold text-slate-800 dark:text-[#F8FAFC]">Fleet Management Dashboard</h1>
+          <p className="text-xs text-slate-500 dark:text-[#94A3B8] mt-0.5">
             Real-time fleet activity, operations metrics, and inventory summary.
           </p>
         </div>
@@ -123,7 +123,7 @@ export const DashboardPage: React.FC = () => {
               height={260}
             />
           ) : (
-            <div className="flex items-center justify-center h-52 text-xs text-[#94A3B8] border border-dashed border-[#334155] rounded-[10px]">
+            <div className="flex items-center justify-center h-52 text-xs text-slate-500 dark:text-[#94A3B8] border border-dashed border-slate-200 dark:border-[#334155] rounded-[10px]">
               No data available
             </div>
           )}
@@ -154,7 +154,7 @@ export const DashboardPage: React.FC = () => {
               height={260}
             />
           ) : (
-            <div className="flex items-center justify-center h-52 text-xs text-[#94A3B8] border border-dashed border-[#334155] rounded-[10px]">
+            <div className="flex items-center justify-center h-52 text-xs text-slate-500 dark:text-[#94A3B8] border border-dashed border-slate-200 dark:border-[#334155] rounded-[10px]">
               No data available
             </div>
           )}
@@ -163,17 +163,17 @@ export const DashboardPage: React.FC = () => {
 
       {/* Recent Activity Section */}
       <div className="space-y-5">
-        <h2 className="text-base font-semibold text-[#F8FAFC]">Recent Activity</h2>
+        <h2 className="text-base font-semibold text-slate-800 dark:text-[#F8FAFC]">Recent Activity</h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Vehicles Table */}
           <Card title="Recent Vehicles" subtitle="Latest registered fleet vehicles">
             {vehicles.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+              <div className="py-8 text-center text-xs text-slate-500 dark:text-[#94A3B8]">No records found.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-[#F8FAFC]">
-                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                <table className="w-full text-left text-xs text-slate-800 dark:text-[#F8FAFC]">
+                  <thead className="bg-slate-50 dark:bg-[#0F172A] text-slate-500 dark:text-[#94A3B8] font-semibold border-b border-slate-200 dark:border-[#334155]">
                     <tr>
                       <th className="px-3 py-2">Plate</th>
                       <th className="px-3 py-2">Make / Model</th>
@@ -185,11 +185,11 @@ export const DashboardPage: React.FC = () => {
                       <tr
                         key={v.id}
                         className={`${
-                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
-                        } hover:bg-[#334155]/50 transition-colors`}
+                          idx % 2 === 0 ? 'bg-white dark:bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-slate-100 dark:hover:bg-[#334155]/50 transition-colors`}
                       >
                         <td className="px-3 py-2.5 font-medium">{v.plateNumber}</td>
-                        <td className="px-3 py-2.5 text-[#94A3B8]">
+                        <td className="px-3 py-2.5 text-slate-500 dark:text-[#94A3B8]">
                           {v.make} {v.model}
                         </td>
                         <td className="px-3 py-2.5">
@@ -218,11 +218,11 @@ export const DashboardPage: React.FC = () => {
           {/* Recent Drivers Table */}
           <Card title="Recent Drivers" subtitle="Latest active fleet operators">
             {drivers.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+              <div className="py-8 text-center text-xs text-slate-500 dark:text-[#94A3B8]">No records found.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-[#F8FAFC]">
-                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                <table className="w-full text-left text-xs text-slate-800 dark:text-[#F8FAFC]">
+                  <thead className="bg-slate-50 dark:bg-[#0F172A] text-slate-500 dark:text-[#94A3B8] font-semibold border-b border-slate-200 dark:border-[#334155]">
                     <tr>
                       <th className="px-3 py-2">Name</th>
                       <th className="px-3 py-2">License</th>
@@ -234,11 +234,11 @@ export const DashboardPage: React.FC = () => {
                       <tr
                         key={d.id}
                         className={`${
-                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
-                        } hover:bg-[#334155]/50 transition-colors`}
+                          idx % 2 === 0 ? 'bg-white dark:bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-slate-100 dark:hover:bg-[#334155]/50 transition-colors`}
                       >
                         <td className="px-3 py-2.5 font-medium">{d.fullName}</td>
-                        <td className="px-3 py-2.5 text-[#94A3B8]">{d.licenseNumber}</td>
+                        <td className="px-3 py-2.5 text-slate-500 dark:text-[#94A3B8]">{d.licenseNumber}</td>
                         <td className="px-3 py-2.5">
                           <Badge
                             variant={
@@ -263,11 +263,11 @@ export const DashboardPage: React.FC = () => {
           {/* Recent Trips Table */}
           <Card title="Recent Trips" subtitle="Latest dispatches and trips">
             {trips.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#94A3B8]">No records found.</div>
+              <div className="py-8 text-center text-xs text-slate-500 dark:text-[#94A3B8]">No records found.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-[#F8FAFC]">
-                  <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+                <table className="w-full text-left text-xs text-slate-800 dark:text-[#F8FAFC]">
+                  <thead className="bg-slate-50 dark:bg-[#0F172A] text-slate-500 dark:text-[#94A3B8] font-semibold border-b border-slate-200 dark:border-[#334155]">
                     <tr>
                       <th className="px-3 py-2">Trip Code</th>
                       <th className="px-3 py-2">Route</th>
@@ -279,11 +279,11 @@ export const DashboardPage: React.FC = () => {
                       <tr
                         key={t.id}
                         className={`${
-                          idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
-                        } hover:bg-[#334155]/50 transition-colors`}
+                          idx % 2 === 0 ? 'bg-white dark:bg-[#1E293B]' : 'bg-[#152032]'
+                        } hover:bg-slate-100 dark:hover:bg-[#334155]/50 transition-colors`}
                       >
                         <td className="px-3 py-2.5 font-medium">{t.tripCode || t.id.slice(0, 8)}</td>
-                        <td className="px-3 py-2.5 text-[#94A3B8]">
+                        <td className="px-3 py-2.5 text-slate-500 dark:text-[#94A3B8]">
                           {t.origin} &rarr; {t.destination}
                         </td>
                         <td className="px-3 py-2.5">

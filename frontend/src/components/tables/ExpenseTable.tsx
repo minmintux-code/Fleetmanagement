@@ -11,12 +11,12 @@ export const ExpenseTable: React.FC<{ expenses: Expense[]; isLoading?: boolean }
   const columns: Column<Expense>[] = [
     {
       header: 'Expense No.',
-      cell: (e) => <span className="font-mono font-bold text-xs text-slate-900">{e.expenseNumber}</span>,
+      cell: (e) => <span className="font-mono font-bold text-xs text-slate-900 dark:text-slate-100">{e.expenseNumber}</span>,
     },
     {
       header: 'Category',
       cell: (e) => (
-        <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
           {e.category}
         </span>
       ),
@@ -26,13 +26,13 @@ export const ExpenseTable: React.FC<{ expenses: Expense[]; isLoading?: boolean }
       cell: (e) => (
         <div className="text-xs">
           <span className="font-bold text-blue-600 block">{e.vehiclePlate || 'Fleet General'}</span>
-          <span className="text-slate-500">{e.vendorName || 'N/A'}</span>
+          <span className="text-slate-500 dark:text-slate-400">{e.vendorName || 'N/A'}</span>
         </div>
       ),
     },
     {
       header: 'Amount',
-      cell: (e) => <span className="font-bold text-slate-900 text-xs">{formatCurrency(e.amount)}</span>,
+      cell: (e) => <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">{formatCurrency(e.amount)}</span>,
     },
     {
       header: 'Status',
@@ -43,7 +43,7 @@ export const ExpenseTable: React.FC<{ expenses: Expense[]; isLoading?: boolean }
     },
     {
       header: 'Date Incurred',
-      cell: (e) => <span className="text-xs text-slate-500">{formatDate(e.incurredDate)}</span>,
+      cell: (e) => <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(e.incurredDate)}</span>,
     },
   ];
 

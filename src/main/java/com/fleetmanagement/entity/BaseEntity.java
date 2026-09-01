@@ -25,6 +25,15 @@ public abstract class BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
+    /**
+     * Development default owner ID used when no authenticated user is present.
+     * Replace with AuthContext.getUserId() when JWT is implemented.
+     */
+    private static final Long DEV_DEFAULT_OWNER_ID = 1L;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -32,6 +41,11 @@ public abstract class BaseEntity {
         if (this.createdBy == null) this.createdBy = "SYSTEM";
         if (this.updatedBy == null) this.updatedBy = "SYSTEM";
         if (this.isDeleted == null) this.isDeleted = false;
+        if (this.ownerId == null) {
+            Long authUserId = com.fleetmanagement.config.AuthContext.getUserId();
+            // Fall back to default owner during development (no auth)
+            this.ownerId = (authUserId != null) ? authUserId : DEV_DEFAULT_OWNER_ID;
+        }
     }
 
     @PreUpdate
@@ -86,5 +100,13 @@ public abstract class BaseEntity {
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 }

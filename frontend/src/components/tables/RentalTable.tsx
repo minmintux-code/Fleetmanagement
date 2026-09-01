@@ -12,11 +12,11 @@ export const RentalTable: React.FC<{ rentals: Rental[]; isLoading?: boolean }> =
   const columns: Column<Rental>[] = [
     {
       header: 'Rental Code',
-      cell: (r) => <span className="font-mono font-bold text-xs text-slate-900">{r.rentalCode}</span>,
+      cell: (r) => <span className="font-mono font-bold text-xs text-slate-900 dark:text-slate-100">{r.rentalCode}</span>,
     },
     {
       header: 'Customer',
-      cell: (r) => <span className="font-semibold text-slate-800 text-xs">{r.customerName}</span>,
+      cell: (r) => <span className="font-semibold text-slate-800 dark:text-slate-100 text-xs">{r.customerName}</span>,
     },
     {
       header: 'Vehicle Plate',
@@ -25,7 +25,7 @@ export const RentalTable: React.FC<{ rentals: Rental[]; isLoading?: boolean }> =
     {
       header: 'Duration',
       cell: (r) => (
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-slate-600 dark:text-slate-400">
           {formatDate(r.startDate)} &rarr; {formatDate(r.endDate)}
         </span>
       ),
@@ -34,8 +34,8 @@ export const RentalTable: React.FC<{ rentals: Rental[]; isLoading?: boolean }> =
       header: 'Daily Rate & Total',
       cell: (r) => (
         <div className="text-xs">
-          <span className="font-bold text-slate-900 block">{formatCurrency(r.totalCost)}</span>
-          <span className="text-slate-500">₹{r.dailyRate}/day</span>
+          <span className="font-bold text-slate-900 dark:text-slate-100 block">{formatCurrency(r.totalCost)}</span>
+          <span className="text-slate-500 dark:text-slate-400">₹{r.dailyRate}/day</span>
         </div>
       ),
     },

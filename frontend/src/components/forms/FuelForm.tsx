@@ -102,7 +102,7 @@ export const FuelForm: React.FC<FuelFormProps> = ({
         {...register('filledAt')}
       />
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
+      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

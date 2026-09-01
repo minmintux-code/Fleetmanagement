@@ -18,7 +18,7 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium transition-colors rounded-[10px] focus:outline-none focus:ring-1 focus:ring-[#2563EB] disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'inline-flex items-center justify-center font-medium transition-colors rounded-[10px] focus:outline-none focus:ring-1 focus:ring-[#2563EB] dark:focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const sizeClasses = {
     sm: 'px-2.5 py-1 text-xs',
@@ -27,12 +27,12 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantClasses = {
-    primary: 'bg-[#2563EB] hover:bg-blue-600 text-[#F8FAFC]',
-    secondary: 'bg-slate-700 hover:bg-slate-600 text-[#F8FAFC]',
-    outline: 'border border-[#334155] bg-[#1E293B] hover:bg-[#334155] text-[#F8FAFC]',
+    primary: 'bg-[#2563EB] hover:bg-blue-600 text-slate-800 dark:text-[#F8FAFC]',
+    secondary: 'bg-slate-700 hover:bg-slate-600 text-slate-800 dark:text-[#F8FAFC]',
+    outline: 'border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#1E293B] hover:bg-slate-100 dark:hover:bg-[#334155] text-slate-800 dark:text-[#F8FAFC]',
     danger: 'bg-[#EF4444] hover:bg-red-600 text-white',
     success: 'bg-[#22C55E] hover:bg-green-600 text-white',
-    ghost: 'bg-transparent hover:bg-[#334155] text-[#94A3B8] hover:text-[#F8FAFC]',
+    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-[#334155] text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC]',
   };
 
   return (

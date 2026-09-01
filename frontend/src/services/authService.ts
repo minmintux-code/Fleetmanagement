@@ -18,29 +18,18 @@ const DEFAULT_USER: User = {
 };
 
 export const authService = {
-  async login(email: string): Promise<LoginResponse> {
+  async login(adminId: string, username: string, password: string): Promise<LoginResponse> {
     try {
-      const res = await api.post<LoginResponse>('/auth/login', { email });
+      const res = await api.post<LoginResponse>('/auth/login', { adminId, username, password });
       if (res.data && res.data.token) {
         localStorage.setItem('fleet_auth_token', res.data.token);
         localStorage.setItem('fleet_auth_user', JSON.stringify(res.data.user));
         return res.data;
       }
-    } catch {
-      // Fallback for UI preview when backend server is starting
+    } catch (error) {
+      throw error;
     }
-
-    const fallbackUser: User = {
-      ...DEFAULT_USER,
-      email: email || DEFAULT_USER.email,
-    };
-    const response: LoginResponse = {
-      user: fallbackUser,
-      token: 'jwt-session-token-' + Date.now(),
-    };
-    localStorage.setItem('fleet_auth_token', response.token);
-    localStorage.setItem('fleet_auth_user', JSON.stringify(response.user));
-    return response;
+    throw new Error('Invalid response from server');
   },
 
   async getCurrentUser(): Promise<User> {

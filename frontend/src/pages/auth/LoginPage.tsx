@@ -7,8 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../hooks/useNotification';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { Truck } from 'lucide-react';
-import { APP_NAME } from '../../utils/constants';
+import { Logo } from '../../components/common/Logo';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -22,15 +21,16 @@ export const LoginPage: React.FC = () => {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'admin@fleetmaster.com',
-      password: 'password123',
+      adminId: '',
+      username: '',
+      password: '',
       rememberMe: true,
     },
   });
 
-  const onSubmit = async (data: { email: string }) => {
+  const onSubmit = async (data: { adminId?: string; username?: string; password?: string }) => {
     try {
-      await login(data.email);
+      await login(data.adminId || '', data.username || '', data.password || '');
       showToast('Successfully authenticated', 'success');
       navigate('/dashboard');
     } catch {
@@ -39,26 +39,31 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4 py-12">
-      <div className="max-w-sm w-full bg-white rounded border border-[#E5E7EB] overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] dark:bg-slate-900 px-4 py-12 transition-colors duration-300">
+      <div className="max-w-sm w-full bg-white dark:bg-slate-800 rounded border border-[#E5E7EB] dark:border-slate-700 overflow-hidden shadow-xl animate-fade-in animate-slide-up">
         {/* Header Branding */}
-        <div className="p-6 bg-[#1E293B] text-center border-b border-[#E5E7EB]">
-          <div className="inline-flex p-2 bg-[#2563EB] rounded text-white mb-2">
-            <Truck className="w-6 h-6" />
-          </div>
-          <h2 className="text-base font-semibold text-white tracking-tight">{APP_NAME}</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Fleet Management System</p>
+        <div className="p-6 bg-white dark:bg-[#1E293B] text-center border-b border-[#E5E7EB] dark:border-slate-700 flex flex-col items-center justify-center">
+          <Logo size="lg" showText={true} className="justify-center" />
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Fleet Management System</p>
         </div>
 
         {/* Form Body */}
         <div className="p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
-              label="Email"
-              type="email"
-              placeholder="admin@fleetmaster.com"
-              error={errors.email?.message as string}
-              {...register('email')}
+              label="Admin ID"
+              type="text"
+              placeholder="e.g. Admin123"
+              error={errors.adminId?.message as string}
+              {...register('adminId')}
+            />
+
+            <Input
+              label="Workspace Username"
+              type="text"
+              placeholder="e.g. Simpson"
+              error={errors.username?.message as string}
+              {...register('username')}
             />
 
             <Input
@@ -70,10 +75,10 @@ export const LoginPage: React.FC = () => {
             />
 
             <div className="flex items-center justify-between text-xs">
-              <label className="flex items-center text-slate-600">
+              <label className="flex items-center text-slate-600 dark:text-slate-400">
                 <input
                   type="checkbox"
-                  className="rounded border-[#E5E7EB] text-[#2563EB] focus:ring-[#2563EB] mr-1.5"
+                  className="rounded border-[#E5E7EB] dark:border-slate-700 text-[#2563EB] focus:ring-[#2563EB] dark:focus:ring-blue-500 mr-1.5"
                   {...register('rememberMe')}
                 />
                 Remember me

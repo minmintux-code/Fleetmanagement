@@ -63,8 +63,8 @@ export const MaintenancePage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Maintenance & Service Repairs</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Maintenance & Service Repairs</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Manage work orders, scheduled preventive servicing, repairs, and vendor shop logs.
           </p>
         </div>
@@ -79,7 +79,7 @@ export const MaintenancePage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-2xs grid grid-cols-1 sm:grid-cols-3 gap-4">
         <SearchInput
           value={search}
           onChange={setSearch}

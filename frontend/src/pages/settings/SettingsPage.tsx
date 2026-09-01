@@ -22,8 +22,8 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">System Settings & Preferences</h1>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">System Settings & Preferences</h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
           Configure organization details, default dispatch thresholds, notification rules, and API endpoints.
         </p>
       </div>
@@ -33,11 +33,11 @@ export const SettingsPage: React.FC = () => {
         <Card title="Organization & System Details" subtitle="Company identity displayed across generated reports">
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input label="Company Name" defaultValue="Fleet Manager Logistics" />
+              <Input label="Company Name" defaultValue="NexFleet Logistics" />
               <Input label="System Environment Name" defaultValue="Production Hub" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input label="Support Email Contact" defaultValue="support@fleetmanager.com" />
+              <Input label="Support Email Contact" defaultValue="support@nexfleet.com" />
               <Select
                 label="Primary Operating Currency"
                 options={[

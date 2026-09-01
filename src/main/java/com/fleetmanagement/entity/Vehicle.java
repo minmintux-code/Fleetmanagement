@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 @Table(name = "vehicles")
 public class Vehicle extends BaseEntity {
 
-    @Column(name = "vin", nullable = false, unique = true, length = 17)
+    @Column(name = "vin", nullable = false, length = 17)
     private String vin;
 
-    @Column(name = "plate_number", nullable = false, unique = true, length = 20)
+    @Column(name = "plate_number", nullable = false, length = 20)
     private String plateNumber;
 
     @Column(name = "make", nullable = false, length = 50)

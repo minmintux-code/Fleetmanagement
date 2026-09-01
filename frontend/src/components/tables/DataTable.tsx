@@ -27,7 +27,7 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   if (isLoading) {
     return (
-      <div className="bg-[#1E293B] rounded-[10px] border border-[#334155] p-6 text-center text-[#94A3B8] text-xs">
+      <div className="bg-white dark:bg-[#1E293B] rounded-[10px] border border-slate-200 dark:border-[#334155] p-6 text-center text-slate-500 dark:text-[#94A3B8] text-xs">
         <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-[#2563EB] border-t-transparent mb-2" />
         <p>Loading table records...</p>
       </div>
@@ -39,9 +39,9 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-x-auto bg-[#1E293B] rounded-[10px] border border-[#334155]">
-      <table className="w-full text-left text-xs text-[#F8FAFC] border-collapse">
-        <thead className="bg-[#0F172A] text-[#94A3B8] font-semibold border-b border-[#334155]">
+    <div className="overflow-x-auto bg-white dark:bg-[#1E293B] rounded-[10px] border border-slate-200 dark:border-[#334155]">
+      <table className="w-full text-left text-xs text-slate-800 dark:text-[#F8FAFC] border-collapse">
+        <thead className="bg-slate-50 dark:bg-[#0F172A] text-slate-500 dark:text-[#94A3B8] font-semibold border-b border-slate-200 dark:border-[#334155]">
           <tr>
             {columns.map((col, index) => (
               <th key={index} className={`px-3.5 py-2.5 ${col.className || ''}`}>
@@ -56,8 +56,8 @@ export function DataTable<T>({
               key={keyExtractor(item)}
               onClick={() => onRowClick && onRowClick(item)}
               className={`${
-                idx % 2 === 0 ? 'bg-[#1E293B]' : 'bg-[#152032]'
-              } hover:bg-[#334155]/50 transition-colors ${
+                idx % 2 === 0 ? 'bg-white dark:bg-[#1E293B]' : 'bg-[#152032]'
+              } hover:bg-slate-100 dark:hover:bg-[#334155]/50 transition-colors ${
                 onRowClick ? 'cursor-pointer' : ''
               }`}
             >

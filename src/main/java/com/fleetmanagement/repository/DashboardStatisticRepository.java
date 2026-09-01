@@ -16,4 +16,8 @@ public interface DashboardStatisticRepository extends JpaRepository<DashboardSta
     List<DashboardStatistic> findByIsDeletedFalse();
     Page<DashboardStatistic> findByIsDeletedFalse(Pageable pageable);
     List<DashboardStatistic> findByStatDateBetweenAndIsDeletedFalse(LocalDate startDate, LocalDate endDate);
+
+    List<DashboardStatistic> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<DashboardStatistic> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

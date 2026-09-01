@@ -21,8 +21,8 @@ export const MaintenanceTable: React.FC<MaintenanceTableProps> = ({ records, isL
             <Wrench className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-bold text-slate-900 text-xs block">{m.vehiclePlate}</span>
-            <span className="text-xs font-semibold text-slate-600 uppercase">{m.type}</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-xs block">{m.vehiclePlate}</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase">{m.type}</span>
           </div>
         </div>
       ),
@@ -30,7 +30,7 @@ export const MaintenanceTable: React.FC<MaintenanceTableProps> = ({ records, isL
     {
       header: 'Description',
       cell: (m) => (
-        <p className="text-xs text-slate-700 max-w-xs truncate font-medium">{m.description}</p>
+        <p className="text-xs text-slate-700 dark:text-slate-300 max-w-xs truncate font-medium">{m.description}</p>
       ),
     },
     {
@@ -42,15 +42,15 @@ export const MaintenanceTable: React.FC<MaintenanceTableProps> = ({ records, isL
     },
     {
       header: 'Service Center',
-      cell: (m) => <span className="text-xs text-slate-700 font-medium">{m.serviceCenter}</span>,
+      cell: (m) => <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">{m.serviceCenter}</span>,
     },
     {
       header: 'Estimated Cost',
-      cell: (m) => <span className="font-bold text-slate-900 text-xs">{formatCurrency(m.estimatedCost)}</span>,
+      cell: (m) => <span className="font-bold text-slate-900 dark:text-slate-100 text-xs">{formatCurrency(m.estimatedCost)}</span>,
     },
     {
       header: 'Scheduled Date',
-      cell: (m) => <span className="text-xs text-slate-500">{formatDate(m.scheduledDate)}</span>,
+      cell: (m) => <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(m.scheduledDate)}</span>,
     },
   ];
 

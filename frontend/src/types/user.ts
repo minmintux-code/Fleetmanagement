@@ -3,6 +3,8 @@ export type UserRole = 'ADMIN' | 'FLEET_MANAGER' | 'DISPATCHER' | 'MAINTENANCE_T
 export interface User {
   id: string;
   name: string;
+  fullName?: string;
+  username?: string;
   email: string;
   role: UserRole;
   avatarUrl?: string;

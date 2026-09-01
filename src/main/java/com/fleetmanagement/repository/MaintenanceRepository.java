@@ -44,4 +44,8 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long>,
 
     long countByIsDeletedFalse();
     long countByStatusAndIsDeletedFalse(String status);
+
+    List<Maintenance> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Maintenance> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

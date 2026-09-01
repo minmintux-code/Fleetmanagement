@@ -62,9 +62,9 @@ export const TripForm: React.FC<TripFormProps> = ({
         />
         <Select
           label="Assigned Driver"
-          options={drivers.map((d) => ({
+          options={drivers.map((d: any) => ({
             value: d.id,
-            label: d.fullName,
+            label: d.fullName || `${d.firstName || ''} ${d.lastName || ''}`.trim(),
           }))}
           error={errors.driverId?.message as string}
           {...register('driverId')}
@@ -114,7 +114,7 @@ export const TripForm: React.FC<TripFormProps> = ({
         {...register('cargoDescription')}
       />
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200">
+      <div className="flex justify-end space-x-3 pt-4 border-t border-slate-200 dark:border-slate-700">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

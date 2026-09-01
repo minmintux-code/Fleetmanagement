@@ -43,4 +43,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
     BigDecimal sumTotalExpensesInr();
 
     boolean existsByExpenseNumberAndIsDeletedFalse(String expenseNumber);
+
+    List<Expense> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Expense> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

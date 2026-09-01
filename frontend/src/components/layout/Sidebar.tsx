@@ -17,7 +17,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { LayoutContext } from '../../context/LayoutContext';
-import { APP_NAME } from '../../utils/constants';
+import { Logo } from '../common/Logo';
 
 interface NavGroup {
   group: string;
@@ -75,26 +75,17 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen text-[#F8FAFC] transition-all duration-150 flex flex-col border-r border-[#334155] ${
+      className={`fixed top-0 left-0 z-40 h-screen text-slate-800 dark:text-[#F8FAFC] transition-all duration-300 ease-in-out flex flex-col border-r border-slate-200 dark:border-[#334155] ${
         sidebarOpen ? 'w-64' : 'w-16'
       }`}
       style={{ backgroundColor: '#1E293B' }}
     >
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between h-14 px-4 border-b border-[#334155]">
-        <div className="flex items-center space-x-2.5 overflow-hidden">
-          <div className="p-1.5 bg-[#2563EB] rounded-[8px] text-white shrink-0 flex items-center justify-center w-8 h-8">
-            <Truck className="w-5 h-5" />
-          </div>
-          {sidebarOpen && (
-            <span className="text-sm font-semibold text-[#F8FAFC] truncate tracking-tight">
-              {APP_NAME}
-            </span>
-          )}
-        </div>
+      <div className="flex items-center justify-between h-14 px-3.5 border-b border-slate-200 dark:border-[#334155]">
+        <Logo showText={sidebarOpen} size="sm" />
         <button
           onClick={toggleSidebar}
-          className="p-1 rounded hover:bg-[#334155] text-[#94A3B8] hover:text-[#F8FAFC] transition-colors hidden md:block"
+          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-[#334155] text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC] transition-colors hidden md:block shrink-0"
           title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -106,7 +97,7 @@ export const Sidebar: React.FC = () => {
         {navigationGroups.map((group, idx) => (
           <div key={idx}>
             {sidebarOpen && (
-              <h4 className="px-2.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider mb-1">
+              <h4 className="px-2.5 text-[10px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-1">
                 {group.group}
               </h4>
             )}
@@ -119,7 +110,7 @@ export const Sidebar: React.FC = () => {
                     `flex items-center px-2.5 py-2 rounded-[8px] text-xs font-medium transition-colors ${
                       isActive
                         ? 'bg-[#2563EB] text-white font-semibold'
-                        : 'text-[#94A3B8] hover:bg-[#334155]/60 hover:text-[#F8FAFC]'
+                        : 'text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#334155]/60 hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC]'
                     }`
                   }
                 >

@@ -19,7 +19,7 @@ export const TripTable: React.FC<TripTableProps> = ({ trips, isLoading }) => {
       cell: (t) => (
         <div className="flex items-center space-x-2">
           <Navigation className="w-4 h-4 text-blue-600 shrink-0" />
-          <span className="font-bold text-slate-900 font-mono text-xs">{t.tripCode}</span>
+          <span className="font-bold text-slate-900 dark:text-slate-100 font-mono text-xs">{t.tripCode}</span>
         </div>
       ),
     },
@@ -27,10 +27,10 @@ export const TripTable: React.FC<TripTableProps> = ({ trips, isLoading }) => {
       header: 'Route (Origin -> Dest)',
       cell: (t) => (
         <div className="text-xs">
-          <div className="flex items-center text-slate-900 font-medium">
+          <div className="flex items-center text-slate-900 dark:text-slate-100 font-medium">
             <MapPin className="w-3 h-3 text-emerald-600 mr-1 shrink-0" /> {t.origin}
           </div>
-          <div className="flex items-center text-slate-600 mt-0.5">
+          <div className="flex items-center text-slate-600 dark:text-slate-400 mt-0.5">
             <MapPin className="w-3 h-3 text-red-500 mr-1 shrink-0" /> {t.destination}
           </div>
         </div>
@@ -40,7 +40,7 @@ export const TripTable: React.FC<TripTableProps> = ({ trips, isLoading }) => {
       header: 'Driver & Vehicle',
       cell: (t) => (
         <div className="text-xs">
-          <span className="font-semibold text-slate-800 block">{t.driverName}</span>
+          <span className="font-semibold text-slate-800 dark:text-slate-100 block">{t.driverName}</span>
           <span className="text-blue-600 font-mono font-medium">{t.vehiclePlate}</span>
         </div>
       ),
@@ -49,8 +49,8 @@ export const TripTable: React.FC<TripTableProps> = ({ trips, isLoading }) => {
       header: 'Distance & Time',
       cell: (t) => (
         <div className="text-xs">
-          <span className="font-bold text-slate-800 block">{formatDistance(t.distanceKm)}</span>
-          <span className="text-[11px] text-slate-500">{formatDateTime(t.scheduledDeparture)}</span>
+          <span className="font-bold text-slate-800 dark:text-slate-100 block">{formatDistance(t.distanceKm)}</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">{formatDateTime(t.scheduledDeparture)}</span>
         </div>
       ),
     },

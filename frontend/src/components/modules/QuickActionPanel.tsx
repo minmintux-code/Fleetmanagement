@@ -15,8 +15,8 @@ export const QuickActionPanel: React.FC<QuickActionPanelProps> = ({
   onScheduleMaintenance,
 }) => {
   return (
-    <div className="bg-white rounded border border-[#E5E7EB] p-4">
-      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+    <div className="bg-white dark:bg-slate-800 rounded border border-[#E5E7EB] dark:border-slate-700 p-4">
+      <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
         Quick Operations
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">

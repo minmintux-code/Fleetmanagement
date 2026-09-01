@@ -15,8 +15,8 @@ export const Badge: React.FC<BadgeProps> = ({
     success: 'bg-emerald-950/60 text-[#22C55E] border-emerald-800/60',
     warning: 'bg-amber-950/60 text-[#F59E0B] border-amber-800/60',
     danger: 'bg-red-950/60 text-[#EF4444] border-red-800/60',
-    info: 'bg-blue-950/60 text-[#2563EB] border-blue-800/60',
-    secondary: 'bg-slate-800 text-[#94A3B8] border-slate-700',
+    info: 'bg-blue-950/60 text-[#2563EB] border-b border-slate-200 dark:border-slate-700lue-800/60',
+    secondary: 'bg-slate-800 text-slate-500 dark:text-[#94A3B8] border-slate-700',
     purple: 'bg-purple-950/60 text-purple-400 border-purple-800/60',
   };
 

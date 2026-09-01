@@ -19,19 +19,19 @@ export const FuelTable: React.FC<FuelTableProps> = ({ fuelLogs, isLoading }) => 
             <Fuel className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-bold text-slate-900 text-xs block">{f.vehiclePlate}</span>
-            <span className="text-xs text-slate-500">{f.driverName}</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-xs block">{f.vehiclePlate}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{f.driverName}</span>
           </div>
         </div>
       ),
     },
     {
       header: 'Liters Refilled',
-      cell: (f) => <span className="font-bold text-slate-800 text-xs">{f.liters} L</span>,
+      cell: (f) => <span className="font-bold text-slate-800 dark:text-slate-100 text-xs">{f.liters} L</span>,
     },
     {
       header: 'Cost per Liter',
-      cell: (f) => <span className="text-xs text-slate-600">₹{f.costPerLiter.toFixed(2)}/L</span>,
+      cell: (f) => <span className="text-xs text-slate-600 dark:text-slate-400">₹{f.costPerLiter.toFixed(2)}/L</span>,
     },
     {
       header: 'Total Cost',
@@ -39,14 +39,14 @@ export const FuelTable: React.FC<FuelTableProps> = ({ fuelLogs, isLoading }) => 
     },
     {
       header: 'Odometer',
-      cell: (f) => <span className="text-xs text-slate-600">{formatNumber(f.odometerReading)} km</span>,
+      cell: (f) => <span className="text-xs text-slate-600 dark:text-slate-400">{formatNumber(f.odometerReading)} km</span>,
     },
     {
       header: 'Station & Date',
       cell: (f) => (
         <div className="text-xs">
-          <span className="font-medium text-slate-800 block">{f.stationName}</span>
-          <span className="text-[11px] text-slate-500">{formatDateTime(f.filledAt)}</span>
+          <span className="font-medium text-slate-800 dark:text-slate-100 block">{f.stationName}</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">{formatDateTime(f.filledAt)}</span>
         </div>
       ),
     },

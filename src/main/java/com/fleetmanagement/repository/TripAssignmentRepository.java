@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TripAssignmentRepository extends JpaRepository<TripAssignment, Long>, JpaSpecificationExecutor<TripAssignment> {
@@ -14,4 +15,8 @@ public interface TripAssignmentRepository extends JpaRepository<TripAssignment, 
     List<TripAssignment> findByVehicleIdAndIsDeletedFalse(Long vehicleId);
     List<TripAssignment> findByDriverIdAndIsDeletedFalse(Long driverId);
     Page<TripAssignment> findByIsDeletedFalse(Pageable pageable);
+
+    List<TripAssignment> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<TripAssignment> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

@@ -19,6 +19,7 @@ export const DriverManagementPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
   const { showToast } = useNotification();
@@ -43,6 +44,7 @@ export const DriverManagementPage: React.FC = () => {
   }, [debouncedSearch, statusFilter]);
 
   const handleSave = async (formData: any) => {
+    setIsSubmitting(true);
     try {
       if (editingDriver) {
         await driverService.updateDriver(editingDriver.id, formData);
@@ -54,8 +56,14 @@ export const DriverManagementPage: React.FC = () => {
       setIsModalOpen(false);
       setEditingDriver(null);
       fetchDrivers();
-    } catch {
-      showToast('Failed to save driver profile', 'error');
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Failed to save driver profile. Please check your input and try again.';
+      showToast(msg, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -69,10 +77,10 @@ export const DriverManagementPage: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] dark:border-slate-700 pb-3">
         <div>
-          <h1 className="text-lg font-semibold text-[#111827]">Drivers</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-lg font-semibold text-[#111827] dark:text-slate-100">Drivers</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Manage commercial drivers, license details, and status.
           </p>
         </div>
@@ -90,7 +98,7 @@ export const DriverManagementPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-white p-3 rounded border border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="bg-white dark:bg-slate-800 p-3 rounded border border-[#E5E7EB] dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -131,6 +139,7 @@ export const DriverManagementPage: React.FC = () => {
         <DriverForm
           initialValues={editingDriver || undefined}
           onSubmit={handleSave}
+          isSubmitting={isSubmitting}
           onCancel={() => {
             setIsModalOpen(false);
             setEditingDriver(null);

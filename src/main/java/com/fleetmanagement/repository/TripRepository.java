@@ -37,6 +37,12 @@ public interface TripRepository extends JpaRepository<Trip, Long>, JpaSpecificat
     List<Trip> findTripsByDepartureDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     long countByIsDeletedFalse();
+    long countByOwnerIdAndIsDeletedFalse(Long ownerId);
     long countByStatusAndIsDeletedFalse(String status);
+    long countByStatusAndOwnerIdAndIsDeletedFalse(String status, Long ownerId);
     boolean existsByTripCodeAndIsDeletedFalse(String tripCode);
+
+    List<Trip> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Trip> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

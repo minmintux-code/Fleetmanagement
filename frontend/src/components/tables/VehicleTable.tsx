@@ -26,12 +26,12 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
       header: 'Vehicle & Plate',
       cell: (v) => (
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-slate-100 text-slate-600 rounded-md shrink-0">
+          <div className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-md shrink-0">
             <Truck className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-semibold text-slate-900 block">{v.plateNumber}</span>
-            <span className="text-xs text-slate-500">
+            <span className="font-semibold text-slate-900 dark:text-slate-100 block">{v.plateNumber}</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               {v.year} {v.make} {v.model}
             </span>
           </div>
@@ -40,14 +40,14 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
     },
     {
       header: 'VIN',
-      cell: (v) => <span className="font-mono text-xs text-slate-600">{v.vin}</span>,
+      cell: (v) => <span className="font-mono text-xs text-slate-600 dark:text-slate-400">{v.vin}</span>,
     },
     {
       header: 'Type & Fuel',
       cell: (v) => (
         <div className="text-xs">
-          <span className="font-medium text-slate-800 block">{v.type}</span>
-          <span className="text-slate-500 uppercase">{v.fuelType}</span>
+          <span className="font-medium text-slate-800 dark:text-slate-100 block">{v.type}</span>
+          <span className="text-slate-500 dark:text-slate-400 uppercase">{v.fuelType}</span>
         </div>
       ),
     },
@@ -62,10 +62,10 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
       header: 'Mileage & Location',
       cell: (v) => (
         <div>
-          <span className="font-semibold text-slate-800 block text-xs">
+          <span className="font-semibold text-slate-800 dark:text-slate-100 block text-xs">
             {formatNumber(v.mileage)} km
           </span>
-          <span className="text-[11px] text-slate-500 truncate max-w-xs block">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-xs block">
             {v.location || 'Depot Yard'}
           </span>
         </div>
@@ -79,7 +79,7 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
           {onView && (
             <button
               onClick={() => onView(v)}
-              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100"
+              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:bg-slate-800"
               title="View Vehicle Details"
             >
               <Eye className="w-4 h-4" />
@@ -88,7 +88,7 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
           {onEdit && (
             <button
               onClick={() => onEdit(v)}
-              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100"
+              className="p-1.5 text-slate-400 hover:text-blue-600 rounded hover:bg-slate-100 dark:bg-slate-800"
               title="Edit Vehicle"
             >
               <Edit className="w-4 h-4" />

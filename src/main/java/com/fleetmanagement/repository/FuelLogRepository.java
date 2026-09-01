@@ -35,4 +35,8 @@ public interface FuelLogRepository extends JpaRepository<FuelLog, Long>, JpaSpec
 
     @Query("SELECT COALESCE(SUM(f.liters), 0) FROM FuelLog f WHERE f.isDeleted = false AND f.vehicle.id = :vehicleId")
     Double sumTotalLitersByVehicle(@Param("vehicleId") Long vehicleId);
+
+    List<FuelLog> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<FuelLog> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

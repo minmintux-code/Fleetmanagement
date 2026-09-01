@@ -74,6 +74,11 @@ public class Driver extends BaseEntity {
         this.lastName = lastName;
     }
 
+    @Transient
+    public String getFullName() {
+        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+    }
+
     public String getEmail() {
         return email;
     }

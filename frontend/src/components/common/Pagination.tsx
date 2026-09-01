@@ -23,13 +23,13 @@ export const Pagination: React.FC<PaginationProps> = ({
   if (totalItems === 0) return null;
 
   return (
-    <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6 rounded-b-lg">
+    <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 sm:px-6 rounded-b-lg">
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs text-slate-600">
-            Showing <span className="font-semibold text-slate-900">{startItem}</span> to{' '}
-            <span className="font-semibold text-slate-900">{endItem}</span> of{' '}
-            <span className="font-semibold text-slate-900">{totalItems}</span> results
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Showing <span className="font-semibold text-slate-900 dark:text-slate-100">{startItem}</span> to{' '}
+            <span className="font-semibold text-slate-900 dark:text-slate-100">{endItem}</span> of{' '}
+            <span className="font-semibold text-slate-900 dark:text-slate-100">{totalItems}</span> results
           </p>
         </div>
         <div className="flex space-x-1">

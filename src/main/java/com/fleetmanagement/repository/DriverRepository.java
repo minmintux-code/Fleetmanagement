@@ -34,7 +34,13 @@ public interface DriverRepository extends JpaRepository<Driver, Long>, JpaSpecif
     Page<Driver> searchDrivers(@Param("keyword") String keyword, Pageable pageable);
 
     long countByIsDeletedFalse();
+    long countByOwnerIdAndIsDeletedFalse(Long ownerId);
     long countByStatusAndIsDeletedFalse(String status);
+    long countByStatusAndOwnerIdAndIsDeletedFalse(String status, Long ownerId);
     boolean existsByLicenseNumberAndIsDeletedFalse(String licenseNumber);
     boolean existsByEmailAndIsDeletedFalse(String email);
+
+    List<Driver> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Driver> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

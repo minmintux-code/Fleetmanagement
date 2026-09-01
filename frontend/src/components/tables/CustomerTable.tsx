@@ -13,8 +13,8 @@ export const CustomerTable: React.FC<{ customers: Customer[]; isLoading?: boolea
       header: 'Company & Contact',
       cell: (c) => (
         <div>
-          <span className="font-bold text-slate-900 text-xs block">{c.companyName}</span>
-          <span className="text-xs text-slate-500">{c.name} ({c.email})</span>
+          <span className="font-bold text-slate-900 dark:text-slate-100 text-xs block">{c.companyName}</span>
+          <span className="text-xs text-slate-500 dark:text-slate-400">{c.name} ({c.email})</span>
         </div>
       ),
     },
@@ -22,7 +22,7 @@ export const CustomerTable: React.FC<{ customers: Customer[]; isLoading?: boolea
       header: 'Phone & Tax ID',
       cell: (c) => (
         <div className="text-xs">
-          <span className="text-slate-800 block">{c.phone}</span>
+          <span className="text-slate-800 dark:text-slate-100 block">{c.phone}</span>
           <span className="text-slate-400 font-mono">{c.taxId || 'N/A'}</span>
         </div>
       ),
@@ -35,7 +35,7 @@ export const CustomerTable: React.FC<{ customers: Customer[]; isLoading?: boolea
     },
     {
       header: 'Bookings',
-      cell: (c) => <span className="font-bold text-slate-800 text-xs">{c.totalBookings}</span>,
+      cell: (c) => <span className="font-bold text-slate-800 dark:text-slate-100 text-xs">{c.totalBookings}</span>,
     },
     {
       header: 'Total Revenue',
@@ -43,7 +43,7 @@ export const CustomerTable: React.FC<{ customers: Customer[]; isLoading?: boolea
     },
     {
       header: 'Customer Since',
-      cell: (c) => <span className="text-xs text-slate-500">{formatDate(c.createdAt)}</span>,
+      cell: (c) => <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(c.createdAt)}</span>,
     },
   ];
 

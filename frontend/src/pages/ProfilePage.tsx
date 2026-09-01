@@ -23,21 +23,21 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">User Account Profile</h1>
-        <p className="text-xs text-slate-500 mt-0.5">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">User Account Profile</h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
           Manage your account details, security settings, and personal contact information.
         </p>
       </div>
 
       <Card>
-        <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-slate-100">
+        <div className="flex items-center space-x-4 pb-6 mb-6 border-b border-slate-100 dark:border-slate-700/50">
           <div className="w-16 h-16 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xl shadow-md">
             {user?.name ? user.name.charAt(0) : <UserIcon className="w-8 h-8" />}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">{user?.name || 'Administrator'}</h3>
-            <p className="text-xs text-slate-500">{user?.email || 'admin@fleetmaster.com'}</p>
-            <div className="mt-2 inline-flex items-center text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-blue-200">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">{user?.name || 'Administrator'}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{user?.email || 'admin@fleetmaster.com'}</p>
+            <div className="mt-2 inline-flex items-center text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded border border-b border-slate-200 dark:border-slate-700lue-200">
               <Shield className="w-3.5 h-3.5 mr-1" /> Role: {user?.role || 'ADMIN'}
             </div>
           </div>
@@ -53,7 +53,7 @@ export const ProfilePage: React.FC = () => {
             <Input label="Phone Number" defaultValue={user?.phone || '+1 (555) 234-5678'} />
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex justify-end">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-700/50 flex justify-end">
             <Button type="submit" variant="primary" isLoading={isSubmitting} icon={<Save className="w-4 h-4" />}>
               Save Profile Changes
             </Button>

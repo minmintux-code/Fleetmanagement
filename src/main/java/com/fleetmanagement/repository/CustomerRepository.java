@@ -32,5 +32,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     Page<Customer> searchCustomers(@Param("keyword") String keyword, Pageable pageable);
 
     long countByIsDeletedFalse();
+    long countByOwnerIdAndIsDeletedFalse(Long ownerId);
     boolean existsByEmailAndIsDeletedFalse(String email);
+
+    List<Customer> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Customer> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

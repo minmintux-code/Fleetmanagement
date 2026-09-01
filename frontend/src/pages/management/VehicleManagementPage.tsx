@@ -20,6 +20,7 @@ export const VehicleManagementPage: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
   const { showToast } = useNotification();
@@ -45,6 +46,7 @@ export const VehicleManagementPage: React.FC = () => {
   }, [debouncedSearch, statusFilter, typeFilter]);
 
   const handleSave = async (formData: any) => {
+    setIsSubmitting(true);
     try {
       if (editingVehicle) {
         await vehicleService.updateVehicle(editingVehicle.id, formData);
@@ -56,8 +58,14 @@ export const VehicleManagementPage: React.FC = () => {
       setIsModalOpen(false);
       setEditingVehicle(null);
       fetchVehicles();
-    } catch {
-      showToast('Failed to save vehicle record', 'error');
+    } catch (error: any) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Failed to save vehicle record. Please check your input and try again.';
+      showToast(msg, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -72,10 +80,10 @@ export const VehicleManagementPage: React.FC = () => {
   return (
     <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5E7EB] dark:border-slate-700 pb-3">
         <div>
-          <h1 className="text-lg font-semibold text-[#111827]">Vehicles</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-lg font-semibold text-[#111827] dark:text-slate-100">Vehicles</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Manage corporate vehicle inventory and track statuses.
           </p>
         </div>
@@ -94,7 +102,7 @@ export const VehicleManagementPage: React.FC = () => {
       </div>
 
       {/* Filters Toolbar */}
-      <div className="bg-white p-3 rounded border border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="bg-white dark:bg-slate-800 p-3 rounded border border-[#E5E7EB] dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-3">
         <SearchInput
           value={search}
           onChange={setSearch}
@@ -150,6 +158,7 @@ export const VehicleManagementPage: React.FC = () => {
         <VehicleForm
           initialValues={editingVehicle || undefined}
           onSubmit={handleSave}
+          isSubmitting={isSubmitting}
           onCancel={() => {
             setIsModalOpen(false);
             setEditingVehicle(null);

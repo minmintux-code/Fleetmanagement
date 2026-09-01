@@ -37,7 +37,13 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpec
     Page<Vehicle> searchVehicles(@Param("keyword") String keyword, Pageable pageable);
 
     long countByIsDeletedFalse();
+    long countByOwnerIdAndIsDeletedFalse(Long ownerId);
     long countByStatusAndIsDeletedFalse(String status);
+    long countByStatusAndOwnerIdAndIsDeletedFalse(String status, Long ownerId);
     boolean existsByVinAndIsDeletedFalse(String vin);
     boolean existsByPlateNumberAndIsDeletedFalse(String plateNumber);
+
+    List<Vehicle> findByOwnerIdAndIsDeletedFalse(Long ownerId);
+    Optional<Vehicle> findByIdAndOwnerIdAndIsDeletedFalse(Long id, Long ownerId);
 }
+

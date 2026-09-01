@@ -1,4 +1,4 @@
-export const APP_NAME = 'Fleet Manager';
+export const APP_NAME = 'NexFleet';
 export const API_BASE_URL = '/api';
 
 export const VEHICLE_STATUS_LABELS: Record<string, { label: string; variant: string }> = {
