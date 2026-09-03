@@ -15,6 +15,8 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  MapPin,
+  CalendarCheck,
 } from 'lucide-react';
 import { LayoutContext } from '../../context/LayoutContext';
 import { Logo } from '../common/Logo';
@@ -38,6 +40,7 @@ export const Sidebar: React.FC = () => {
       group: 'Overview',
       items: [
         { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+        { name: 'Live Telematics Map', path: '/live-map', icon: <MapPin className="w-4 h-4 text-emerald-400" /> },
       ],
     },
     {
@@ -46,6 +49,7 @@ export const Sidebar: React.FC = () => {
         { name: 'Vehicles', path: '/vehicles', icon: <Truck className="w-4 h-4" /> },
         { name: 'Drivers', path: '/drivers', icon: <Users className="w-4 h-4" /> },
         { name: 'Trips & Dispatch', path: '/trips', icon: <Navigation className="w-4 h-4" /> },
+        { name: 'Service Schedules', path: '/service-schedules', icon: <CalendarCheck className="w-4 h-4 text-indigo-400" /> },
       ],
     },
     {

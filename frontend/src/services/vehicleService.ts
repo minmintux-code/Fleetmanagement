@@ -26,6 +26,11 @@ export const vehicleService = {
     return res.data;
   },
 
+  async updateTelemetry(id: string, telemetry: { latitude?: number; longitude?: number; speedKmH?: number; heading?: number; currentLocation?: string; currentFuelLevel?: number }): Promise<Vehicle> {
+    const res = await api.post<Vehicle>(`/vehicles/${id}/telemetry`, telemetry);
+    return res.data;
+  },
+
   async deleteVehicle(id: string): Promise<void> {
     await api.delete(`/vehicles/${id}`);
   },

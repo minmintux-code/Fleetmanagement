@@ -21,6 +21,10 @@ export interface Vehicle {
   nextServiceDueDate?: string;
   insuranceExpiryDate?: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
+  speedKmH?: number;
+  heading?: number;
   createdAt: string;
 }
 

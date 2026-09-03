@@ -43,7 +43,51 @@ public class Vehicle extends BaseEntity {
     @Column(name = "location", length = 255)
     private String location;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "speed_kmh")
+    private Double speedKmH = 0.0;
+
+    @Column(name = "heading")
+    private Double heading = 0.0;
+
     public Vehicle() {}
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getSpeedKmH() {
+        return speedKmH;
+    }
+
+    public void setSpeedKmH(Double speedKmH) {
+        this.speedKmH = speedKmH;
+    }
+
+    public Double getHeading() {
+        return heading;
+    }
+
+    public void setHeading(Double heading) {
+        this.heading = heading;
+    }
 
     public String getVin() {
         return vin;

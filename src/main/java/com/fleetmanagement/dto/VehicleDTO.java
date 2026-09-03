@@ -18,5 +18,9 @@ public class VehicleDTO {
     private Double fuelCapacity;
     private Double currentFuelLevel;
     private String location;
+    private Double latitude;
+    private Double longitude;
+    private Double speedKmH;
+    private Double heading;
     private LocalDateTime createdAt;
 }

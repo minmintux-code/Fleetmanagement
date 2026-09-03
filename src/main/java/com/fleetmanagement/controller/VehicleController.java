@@ -48,6 +48,10 @@ public class VehicleController {
         dto.setFuelCapacity(v.getFuelCapacity());
         dto.setCurrentFuelLevel(v.getCurrentFuelLevel());
         dto.setLocation(v.getLocation());
+        dto.setLatitude(v.getLatitude());
+        dto.setLongitude(v.getLongitude());
+        dto.setSpeedKmH(v.getSpeedKmH());
+        dto.setHeading(v.getHeading());
         dto.setCreatedAt(v.getCreatedAt());
         return dto;
     }
@@ -82,6 +86,10 @@ public class VehicleController {
         vehicle.setFuelCapacity(dto.getFuelCapacity() != null ? dto.getFuelCapacity() : 0.0);
         vehicle.setCurrentFuelLevel(dto.getCurrentFuelLevel() != null ? dto.getCurrentFuelLevel() : 0.0);
         vehicle.setLocation(dto.getLocation());
+        vehicle.setLatitude(dto.getLatitude());
+        vehicle.setLongitude(dto.getLongitude());
+        vehicle.setSpeedKmH(dto.getSpeedKmH() != null ? dto.getSpeedKmH() : 0.0);
+        vehicle.setHeading(dto.getHeading() != null ? dto.getHeading() : 0.0);
         // Explicitly set owner so it's never null
         vehicle.setOwnerId(resolveOwnerId());
 
@@ -115,6 +123,10 @@ public class VehicleController {
             v.setFuelCapacity(dto.getFuelCapacity());
             v.setCurrentFuelLevel(dto.getCurrentFuelLevel());
             v.setLocation(dto.getLocation());
+            if (dto.getLatitude() != null) v.setLatitude(dto.getLatitude());
+            if (dto.getLongitude() != null) v.setLongitude(dto.getLongitude());
+            if (dto.getSpeedKmH() != null) v.setSpeedKmH(dto.getSpeedKmH());
+            if (dto.getHeading() != null) v.setHeading(dto.getHeading());
 
             if (dto.getType() != null && !dto.getType().isBlank()) {
                 VehicleType vt = vehicleTypeRepository.findByCodeAndIsDeletedFalse(dto.getType())
@@ -128,6 +140,19 @@ public class VehicleController {
                 v.setVehicleType(vt);
             }
 
+            return ResponseEntity.ok(mapToDTO(vehicleRepository.save(v)));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/telemetry")
+    public ResponseEntity<VehicleDTO> updateTelemetry(@PathVariable Long id, @RequestBody VehicleDTO dto) {
+        return vehicleRepository.findByIdAndOwnerIdAndIsDeletedFalse(id, resolveOwnerId()).map(v -> {
+            if (dto.getLatitude() != null) v.setLatitude(dto.getLatitude());
+            if (dto.getLongitude() != null) v.setLongitude(dto.getLongitude());
+            if (dto.getSpeedKmH() != null) v.setSpeedKmH(dto.getSpeedKmH());
+            if (dto.getHeading() != null) v.setHeading(dto.getHeading());
+            if (dto.getLocation() != null) v.setLocation(dto.getLocation());
+            if (dto.getCurrentFuelLevel() != null) v.setCurrentFuelLevel(dto.getCurrentFuelLevel());
             return ResponseEntity.ok(mapToDTO(vehicleRepository.save(v)));
         }).orElse(ResponseEntity.notFound().build());
     }

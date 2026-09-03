@@ -14,6 +14,8 @@ import { ExpenseManagementPage } from '../pages/management/ExpenseManagementPage
 import { CustomerManagementPage } from '../pages/management/CustomerManagementPage';
 import { RentalManagementPage } from '../pages/management/RentalManagementPage';
 import { ReportsPage } from '../pages/analytics/ReportsPage';
+import { LiveMapPage } from '../pages/telematics/LiveMapPage';
+import { ServiceSchedulePage } from '../pages/management/ServiceSchedulePage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { NotificationsPage } from '../pages/NotificationsPage';
 import { ProfilePage } from '../pages/ProfilePage';
@@ -31,9 +33,11 @@ export const AppRoutes: React.FC = () => {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/live-map" element={<LiveMapPage />} />
           <Route path="/vehicles" element={<VehicleManagementPage />} />
           <Route path="/drivers" element={<DriverManagementPage />} />
           <Route path="/trips" element={<TripManagementPage />} />
+          <Route path="/service-schedules" element={<ServiceSchedulePage />} />
           <Route path="/fuel" element={<FuelManagementPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/expenses" element={<ExpenseManagementPage />} />

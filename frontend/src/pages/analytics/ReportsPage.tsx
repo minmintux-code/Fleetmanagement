@@ -8,7 +8,8 @@ import { BarChart } from '../../components/charts/BarChart';
 import { DoughnutChart } from '../../components/charts/DoughnutChart';
 import { useNotification } from '../../hooks/useNotification';
 import { formatCurrency, formatNumber } from '../../utils/formatters';
-import { Download, Calendar } from 'lucide-react';
+import { exportToCsv } from '../../utils/csvExporter';
+import { Download, Printer } from 'lucide-react';
 
 export const ReportsPage: React.FC = () => {
   const [data, setData] = useState<AnalyticsReportData | null>(null);
@@ -23,7 +24,18 @@ export const ReportsPage: React.FC = () => {
   }, []);
 
   const handleExportCSV = () => {
-    showToast('Analytics report exported as CSV document', 'info');
+    if (!data) return;
+    exportToCsv('fleet_monthly_expenses', data.monthlyExpenses, [
+      { key: 'month', label: 'Month' },
+      { key: 'fuel', label: 'Fuel Expenses (INR)' },
+      { key: 'maintenance', label: 'Maintenance (INR)' },
+      { key: 'operational', label: 'Operational (INR)' },
+    ]);
+    showToast('Analytics expense report downloaded', 'success');
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
   };
 
   if (isLoading || !data) return <LoadingSpinner label="Generating executive analytics..." />;
@@ -37,12 +49,12 @@ export const ReportsPage: React.FC = () => {
             Deep dive into fleet financial expenditures, fuel efficiency, and driver safety performance metrics.
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-2">
-          <Button variant="outline" size="sm" icon={<Calendar className="w-3.5 h-3.5" />}>
-            Year to Date (2026)
+        <div className="mt-4 sm:mt-0 flex items-center space-x-2">
+          <Button variant="outline" size="sm" onClick={handlePrintPDF} icon={<Printer className="w-3.5 h-3.5" />}>
+            Print / Save PDF
           </Button>
           <Button variant="primary" size="sm" onClick={handleExportCSV} icon={<Download className="w-3.5 h-3.5" />}>
-            Export CSV Report
+            Export CSV
           </Button>
         </div>
       </div>

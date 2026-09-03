@@ -9,7 +9,8 @@ import { Modal } from '../../components/common/Modal';
 import { DriverForm } from '../../components/forms/DriverForm';
 import { useNotification } from '../../hooks/useNotification';
 import { useDebounce } from '../../hooks/useDebounce';
-import { Plus } from 'lucide-react';
+import { exportToCsv } from '../../utils/csvExporter';
+import { Plus, Download } from 'lucide-react';
 
 export const DriverManagementPage: React.FC = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -23,6 +24,20 @@ export const DriverManagementPage: React.FC = () => {
 
   const debouncedSearch = useDebounce(search, 300);
   const { showToast } = useNotification();
+
+  const handleExportCsv = () => {
+    exportToCsv('fleet_drivers', drivers, [
+      { key: 'firstName', label: 'First Name' },
+      { key: 'lastName', label: 'Last Name' },
+      { key: 'email', label: 'Email' },
+      { key: 'phone', label: 'Phone' },
+      { key: 'licenseNumber', label: 'License Number' },
+      { key: 'licenseCategory', label: 'Category' },
+      { key: 'licenseExpiryDate', label: 'Expiry Date' },
+      { key: 'status', label: 'Status' },
+      { key: 'safetyScore', label: 'Safety Index' },
+    ]);
+  };
 
   const fetchDrivers = async () => {
     setIsLoading(true);
@@ -84,7 +99,14 @@ export const DriverManagementPage: React.FC = () => {
             Manage commercial drivers, license details, and status.
           </p>
         </div>
-        <div className="mt-3 sm:mt-0">
+        <div className="mt-3 sm:mt-0 flex items-center space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleExportCsv}
+            icon={<Download className="w-3.5 h-3.5" />}
+          >
+            Export CSV
+          </Button>
           <Button
             variant="primary"
             onClick={() => {
