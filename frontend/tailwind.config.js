@@ -9,21 +9,23 @@ export default {
     extend: {
       colors: {
         fleet: {
-          bg: '#0F172A',
-          card: '#1E293B',
-          border: '#334155',
-          primary: '#2563EB',
+          bg: '#120B08',
+          card: '#1C120D',
+          border: '#382218',
+          primary: '#C87A38',
+          primaryDark: '#B36423',
+          primaryLight: '#E89A4F',
           success: '#22C55E',
-          warning: '#F59E0B',
+          warning: '#D48B46',
           danger: '#EF4444',
-          text: '#F8FAFC',
-          secondary: '#94A3B8',
+          text: '#FBF8F3',
+          secondary: '#A39185',
         },
       },
       borderRadius: {
-        DEFAULT: '10px',
-        lg: '10px',
-        md: '8px',
+        DEFAULT: '12px',
+        lg: '14px',
+        md: '10px',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
@@ -35,3 +37,4 @@ export default {
   },
   plugins: [],
 }
+

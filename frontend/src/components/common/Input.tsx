@@ -12,33 +12,34 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-xs font-medium text-slate-500 dark:text-[#94A3B8] mb-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500 dark:text-[#94A3B8]">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               {leftIcon}
             </div>
           )}
           <input
             ref={ref}
-            className={`w-full rounded-[10px] border text-xs text-slate-800 dark:text-[#F8FAFC] bg-slate-50 dark:bg-[#0F172A] placeholder-[#64748B] transition-colors focus:outline-none focus:border-[#2563EB] dark:focus:border-blue-500 disabled:bg-slate-800 disabled:cursor-not-allowed ${
-              leftIcon ? 'pl-8' : 'pl-2.5'
-            } pr-2.5 py-1.5 ${
+            className={`w-full rounded-xl border text-xs text-slate-800 dark:text-[#FBF8F3] bg-white/90 dark:bg-[#120B08]/90 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#C87A38]/40 focus:border-[#C87A38] disabled:bg-slate-100 dark:disabled:bg-[#281A12] disabled:cursor-not-allowed ${
+              leftIcon ? 'pl-9' : 'pl-3'
+            } pr-3 py-2 ${
               error
-                ? 'border-[#EF4444] focus:border-[#EF4444]'
-                : 'border-slate-200 dark:border-[#334155]'
+                ? 'border-rose-500 focus:ring-rose-500/40 focus:border-rose-500'
+                : 'border-slate-200 dark:border-[#382218]'
             } ${className}`}
             {...props}
           />
         </div>
-        {error && <p className="mt-1 text-xs text-[#EF4444]">{error}</p>}
-        {helperText && !error && <p className="mt-1 text-xs text-slate-500 dark:text-[#94A3B8]">{helperText}</p>}
+        {error && <p className="mt-1 text-[11px] font-medium text-rose-500 animate-fade-in">{error}</p>}
+        {helperText && !error && <p className="mt-1 text-[11px] text-slate-400 font-medium">{helperText}</p>}
       </div>
     );
   }
 );
 
 Input.displayName = 'Input';
+

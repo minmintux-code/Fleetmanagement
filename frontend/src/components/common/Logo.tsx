@@ -1,64 +1,72 @@
 import React from 'react';
-import { Truck } from 'lucide-react';
-import { APP_NAME } from '../../utils/constants';
 
 export interface LogoProps {
   /** Size variant: 'sm' (sidebar/header), 'md' (standard), 'lg' (auth/hero) */
   size?: 'sm' | 'md' | 'lg';
   /** Toggle brand text display alongside logo icon */
   showText?: boolean;
+  /** Text color variant: 'auto' (adapts to light/dark mode), 'light' (always light text for dark backgrounds), 'dark' (always dark text) */
+  variant?: 'auto' | 'light' | 'dark';
   /** Extra container styling */
   className?: string;
 }
 
 /**
- * NexFleet Logo Component
- * A clean, modern brand logo with smooth gradient badge and text.
- * Simple, modular, and easy to explain.
+ * Fleet Master Brand Logo Component
+ * Renders the official Fleet Master heavy-duty commercial truck emblem.
  */
 export const Logo: React.FC<LogoProps> = ({
   size = 'md',
   showText = true,
+  variant = 'auto',
   className = '',
 }) => {
-  // Sizing definitions for easy adjustments and clear code explanation
-  const iconSizes = {
-    sm: 'w-8 h-8 rounded-lg',
-    md: 'w-10 h-10 rounded-xl',
-    lg: 'w-12 h-12 rounded-xl',
+  const containerSizes = {
+    sm: 'h-8',
+    md: 'h-10',
+    lg: 'h-14',
   };
 
-  const svgSizes = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
+  const imageSizes = {
+    sm: 'h-7 w-auto',
+    md: 'h-9 w-auto',
+    lg: 'h-12 w-auto',
   };
 
   const textSizes = {
     sm: 'text-sm',
     md: 'text-base',
-    lg: 'text-xl',
+    lg: 'text-2xl',
+  };
+
+  const textColors = {
+    auto: 'text-slate-900 dark:text-[#FBF8F3]',
+    light: 'text-[#FBF8F3]',
+    dark: 'text-slate-900',
   };
 
   return (
-    <div className={`flex items-center space-x-2.5 overflow-hidden transition-all duration-300 ${className}`}>
-      {/* Emblem Icon with Gradient & Shadow */}
-      <div
-        className={`${iconSizes[size]} bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20 transition-transform duration-300 hover:scale-105`}
-      >
-        <Truck className={`${svgSizes[size]} text-white`} />
-      </div>
+    <div className={`flex items-center space-x-3 overflow-hidden transition-all duration-300 ${containerSizes[size]} ${className}`}>
+      {/* Official Fleet Master Emblem */}
+      <img
+        src="/logo.png"
+        alt="Fleet Master"
+        className={`${imageSizes[size]} object-contain shrink-0 filter drop-shadow-md transition-transform duration-300 hover:scale-105`}
+      />
 
       {/* Brand Text */}
       {showText && (
-        <span
-          className={`${textSizes[size]} font-bold tracking-tight text-slate-900 dark:text-white truncate transition-opacity duration-300`}
-        >
-          {APP_NAME}
-        </span>
+        <div className="flex flex-col justify-center">
+          <span
+            className={`${textSizes[size]} font-extrabold tracking-wider ${textColors[variant]} uppercase truncate transition-colors duration-300 font-sans`}
+          >
+            FLEET<span className="text-[#C87A38]">MASTER</span>
+          </span>
+        </div>
       )}
     </div>
   );
 };
 
 export default Logo;
+

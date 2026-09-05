@@ -17,27 +17,27 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-xs font-medium text-slate-500 dark:text-[#94A3B8] mb-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             {label}
           </label>
         )}
         <select
           ref={ref}
-          className={`w-full rounded-[10px] border text-xs text-slate-800 dark:text-[#F8FAFC] bg-slate-50 dark:bg-[#0F172A] transition-colors focus:outline-none focus:border-[#2563EB] dark:focus:border-blue-500 disabled:bg-slate-800 disabled:cursor-not-allowed px-2.5 py-1.5 ${
+          className={`w-full rounded-xl border text-xs text-slate-800 dark:text-[#FBF8F3] bg-white/90 dark:bg-[#120B08]/90 transition-all focus:outline-none focus:ring-2 focus:ring-[#C87A38]/40 focus:border-[#C87A38] disabled:bg-slate-100 dark:disabled:bg-[#281A12] disabled:cursor-not-allowed px-3 py-2 ${
             error
-              ? 'border-[#EF4444] focus:border-[#EF4444]'
-              : 'border-slate-200 dark:border-[#334155]'
+              ? 'border-rose-500 focus:ring-rose-500/40 focus:border-rose-500'
+              : 'border-slate-200 dark:border-[#382218]'
           } ${className}`}
           {...props}
         >
-          {placeholder && <option value="" className="bg-white dark:bg-[#1E293B] text-slate-500 dark:text-[#94A3B8]">{placeholder}</option>}
+          {placeholder && <option value="" className="bg-white dark:bg-[#1A110C] text-slate-400">{placeholder}</option>}
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#1E293B] text-slate-800 dark:text-[#F8FAFC]">
+            <option key={opt.value} value={opt.value} className="bg-white dark:bg-[#1A110C] text-slate-800 dark:text-[#FBF8F3]">
               {opt.label}
             </option>
           ))}
         </select>
-        {error && <p className="mt-1 text-xs text-[#EF4444]">{error}</p>}
+        {error && <p className="mt-1 text-[11px] font-medium text-rose-500 animate-fade-in">{error}</p>}
       </div>
     );
   }

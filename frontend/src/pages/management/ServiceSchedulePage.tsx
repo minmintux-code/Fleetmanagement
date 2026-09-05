@@ -46,44 +46,7 @@ export const ServiceSchedulePage: React.FC = () => {
         vehicleService.getVehicles(),
       ]);
 
-      // Fallback mock schedules if database has 0 pre-loaded rules
-      if (schedList.length === 0 && vehList.length > 0) {
-        const mockSchedules: ServiceSchedule[] = [
-          {
-            id: '1',
-            vehicleId: vehList[0].id,
-            vehiclePlateNumber: vehList[0].plateNumber,
-            vehicleMakeModel: `${vehList[0].make} ${vehList[0].model}`,
-            serviceName: '10,000 KM Engine Oil & Filter Service',
-            intervalKm: 10000,
-            intervalMonths: 6,
-            lastServiceDate: '2025-11-15',
-            lastServiceKm: 12000,
-            nextDueDate: '2026-05-15',
-            nextDueKm: 22000,
-            status: 'PENDING',
-            createdAt: '2025-11-15T10:00:00Z',
-          },
-          {
-            id: '2',
-            vehicleId: vehList[1]?.id || vehList[0].id,
-            vehiclePlateNumber: vehList[1]?.plateNumber || vehList[0].plateNumber,
-            vehicleMakeModel: vehList[1] ? `${vehList[1].make} ${vehList[1].model}` : 'Tata Prima',
-            serviceName: 'Full Brake System & Pad Inspection',
-            intervalKm: 20000,
-            intervalMonths: 12,
-            lastServiceDate: '2025-02-10',
-            lastServiceKm: 5000,
-            nextDueDate: '2026-02-10',
-            nextDueKm: 25000,
-            status: 'OVERDUE',
-            createdAt: '2025-02-10T10:00:00Z',
-          },
-        ];
-        setSchedules(mockSchedules);
-      } else {
-        setSchedules(schedList);
-      }
+      setSchedules(schedList);
       setVehicles(vehList);
     } catch (err) {
       console.error('Failed to load service schedules:', err);

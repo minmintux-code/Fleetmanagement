@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
 export interface ModalProps {
@@ -30,8 +31,6 @@ export const Modal: React.FC<ModalProps> = ({
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   const maxWidthClasses = {
     sm: 'max-w-sm',
     md: 'max-w-md',
@@ -41,27 +40,54 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div
-        className="fixed inset-0 bg-slate-50 dark:bg-[#0F172A]/70 transition-opacity"
-        onClick={onClose}
-      />
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div
-          className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-[10px] bg-white dark:bg-[#1E293B] border border-slate-200 dark:border-[#334155] z-10 shadow-lg`}
-        >
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-[#334155] px-5 py-3.5">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-[#F8FAFC]">{title}</h3>
-            <button
-              onClick={onClose}
-              className="text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC] transition-colors p-1 rounded hover:bg-slate-100 dark:hover:bg-[#334155]"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="px-5 py-4 text-slate-800 dark:text-[#F8FAFC]">{children}</div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+          {/* Animated Backdrop Blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-slate-900/60 dark:bg-[#060D1F]/80 backdrop-blur-md"
+            onClick={onClose}
+          />
+
+          {/* Animated Spring Pop-up Dialog */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.94, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            transition={{
+              type: 'spring',
+              stiffness: 380,
+              damping: 28,
+            }}
+            className={`relative w-full ${maxWidthClasses[maxWidth]} rounded-[14px] glass-modal z-10 shadow-2xl overflow-hidden border border-slate-200/80 dark:border-slate-700/60`}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-700/60 px-6 py-4 bg-slate-50/50 dark:bg-slate-800/40">
+              <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 tracking-tight">
+                {title}
+              </h3>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-200/60 dark:hover:bg-slate-700/60"
+              >
+                <X className="w-4 h-4" />
+              </motion.button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 text-slate-800 dark:text-slate-100 max-h-[80vh] overflow-y-auto">
+              {children}
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
+

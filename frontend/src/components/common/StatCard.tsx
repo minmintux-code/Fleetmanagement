@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 export interface StatCardProps {
@@ -21,19 +22,29 @@ export const StatCard: React.FC<StatCardProps> = ({
   description,
 }) => {
   return (
-    <div className="bg-white dark:bg-[#1E293B] rounded-[10px] border border-slate-200 dark:border-[#334155] p-4 transition-colors hover:border-[#475569]">
+    <motion.div
+      whileHover={{ y: -3, scale: 1.01 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className="glass-card rounded-2xl p-5 border border-slate-200/90 dark:border-[#382218] shadow-lg relative overflow-hidden group"
+    >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider">
+        <span className="text-[11px] font-bold text-slate-500 dark:text-[#A39185] uppercase tracking-wider">
           {title}
         </span>
-        {icon && <div className="text-slate-500 dark:text-[#94A3B8] shrink-0">{icon}</div>}
+        {icon && (
+          <div className="p-2.5 rounded-xl bg-[#C87A38]/15 text-[#C87A38] dark:text-[#E89A4F] group-hover:scale-110 transition-transform shadow-sm">
+            {icon}
+          </div>
+        )}
       </div>
-      <div className="mt-2 flex items-baseline justify-between">
-        <div className="text-xl font-bold text-slate-800 dark:text-[#F8FAFC] tracking-tight">{value}</div>
+      <div className="mt-3 flex items-baseline justify-between">
+        <div className="text-2xl font-black text-slate-900 dark:text-[#FBF8F3] tracking-tight">{value}</div>
         {trend && (
           <div
-            className={`flex items-center text-xs font-medium ${
-              trend.isPositive ? 'text-[#22C55E]' : 'text-[#EF4444]'
+            className={`flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
+              trend.isPositive
+                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
             }`}
           >
             {trend.isPositive ? (
@@ -45,7 +56,8 @@ export const StatCard: React.FC<StatCardProps> = ({
           </div>
         )}
       </div>
-      {description && <p className="mt-1 text-xs text-slate-500 dark:text-[#94A3B8]">{description}</p>}
-    </div>
+      {description && <p className="mt-1.5 text-xs text-slate-500 dark:text-[#A39185] font-medium">{description}</p>}
+    </motion.div>
   );
 };
+

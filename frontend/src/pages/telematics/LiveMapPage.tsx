@@ -371,7 +371,7 @@ export const LiveMapPage: React.FC = () => {
                     <User className="w-3.5 h-3.5 text-slate-400" /> Assigned Driver
                   </span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
-                    {selectedVehicle.assignedDriverName || 'Rajesh Sharma'}
+                    {selectedVehicle.assignedDriverName || 'Unassigned'}
                   </span>
                 </div>
 
@@ -380,7 +380,7 @@ export const LiveMapPage: React.FC = () => {
                     <Zap className="w-3.5 h-3.5 text-slate-400" /> Total Odometer
                   </span>
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
-                    {selectedVehicle.mileage ? selectedVehicle.mileage.toLocaleString() : '14,250'} KM
+                    {selectedVehicle.mileage !== undefined ? selectedVehicle.mileage.toLocaleString() : '0'} KM
                   </span>
                 </div>
 

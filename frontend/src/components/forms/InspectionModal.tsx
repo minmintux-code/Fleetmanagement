@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { Select } from '../common/Select';
 import { Vehicle, Driver } from '../../types';
@@ -59,9 +60,9 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
       });
 
       if (hasDefect) {
-        alert('⚠️ Warning: Safety Defect Logged! High-priority Maintenance Work Order generated automatically.');
+        alert('⚠️ Warning: Safety Defect Logged! High-priority Maintenance Work Order generated automatically in SQL DB.');
       } else {
-        alert('✅ Success: DVIR Safety Inspection passed cleanly.');
+        alert('✅ Success: DVIR Safety Inspection passed cleanly and saved to SQL DB.');
       }
 
       if (onSuccess) onSuccess();
@@ -82,13 +83,25 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
     { key: 'fluids', label: 'Engine Oil, Coolant & Battery Fluids', state: fluids, setter: setFluids },
   ];
 
+  const hasAnyDefect = brakes === 'FAIL' || tires === 'FAIL' || lights === 'FAIL' || steering === 'FAIL' || fluids === 'FAIL';
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Driver Vehicle Inspection Report (DVIR)">
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex items-center gap-3">
-          <ShieldCheck className="w-6 h-6 text-indigo-600 shrink-0" />
-          <p className="text-slate-600 dark:text-slate-300 text-[11px]">
-            Perform mandatory Commercial Driver Vehicle Inspection (DVIR) safety verification before dispatch or post-trip return.
+        <div className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${
+          hasAnyDefect
+            ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
+            : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400'
+        }`}>
+          {hasAnyDefect ? (
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 animate-bounce" />
+          ) : (
+            <ShieldCheck className="w-5 h-5 text-indigo-500 shrink-0" />
+          )}
+          <p className="text-[11px] leading-relaxed">
+            {hasAnyDefect
+              ? 'Safety defect detected! Submitting will flag unit for critical maintenance and record in SQL DB.'
+              : 'Perform mandatory Commercial Driver Vehicle Inspection (DVIR) safety verification before dispatch.'}
           </p>
         </div>
 
@@ -115,65 +128,66 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Inspection Type</label>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setInspectionType('PRE_TRIP')}
-                className={`flex-1 py-1.5 rounded-lg font-semibold border ${
-                  inspectionType === 'PRE_TRIP'
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300'
-                }`}
-              >
-                Pre-Trip
-              </button>
-              <button
-                type="button"
-                onClick={() => setInspectionType('POST_TRIP')}
-                className={`flex-1 py-1.5 rounded-lg font-semibold border ${
-                  inspectionType === 'POST_TRIP'
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300'
-                }`}
-              >
-                Post-Trip
-              </button>
-            </div>
+        <div>
+          <label className="block text-slate-700 dark:text-slate-300 font-semibold mb-1.5">Inspection Type</label>
+          <div className="grid grid-cols-2 gap-2">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={() => setInspectionType('PRE_TRIP')}
+              className={`py-2 rounded-lg font-semibold text-xs border transition-all ${
+                inspectionType === 'PRE_TRIP'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md glow-accent'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              Pre-Trip Inspection
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              type="button"
+              onClick={() => setInspectionType('POST_TRIP')}
+              className={`py-2 rounded-lg font-semibold text-xs border transition-all ${
+                inspectionType === 'POST_TRIP'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md glow-accent'
+                  : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              Post-Trip Inspection
+            </motion.button>
           </div>
         </div>
 
         {/* Safety Item Check Toggles */}
-        <div className="space-y-2 border-t border-b border-slate-200 dark:border-slate-800 py-3">
-          <h4 className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[10px]">
+        <div className="space-y-2 border-t border-b border-slate-200/80 dark:border-slate-700/60 py-3">
+          <h4 className="font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider text-[10px]">
             Safety Checklist Items
           </h4>
           {checkItems.map((item) => (
             <div
               key={item.key}
-              className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800"
+              className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/50"
             >
               <span className="font-medium text-slate-800 dark:text-slate-200">{item.label}</span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 {(['PASS', 'FAIL', 'N_A'] as InspectionItemStatus[]).map((st) => (
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
                     key={st}
                     type="button"
                     onClick={() => item.setter(st)}
-                    className={`px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                    className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${
                       item.state === st
                         ? st === 'PASS'
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-emerald-600 text-white shadow-sm'
                           : st === 'FAIL'
-                          ? 'bg-rose-600 text-white'
+                          ? 'bg-rose-600 text-white shadow-sm'
                           : 'bg-slate-600 text-white'
-                        : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        : 'bg-slate-200 dark:bg-slate-700/70 text-slate-600 dark:text-slate-400 hover:bg-slate-300'
                     }`}
                   >
                     {st}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -189,7 +203,7 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
             value={defects}
             onChange={(e) => setDefects(e.target.value)}
             placeholder="Describe any issues, unusual noise, tire wear, or damage observed..."
-            className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs"
+            className="w-full p-2.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
           />
         </div>
 
@@ -197,19 +211,22 @@ export const InspectionModal: React.FC<InspectionModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
           >
             Cancel
           </button>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
             type="submit"
             disabled={submitting}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow"
+            className="px-5 py-2 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-md glow-accent"
           >
-            {submitting ? 'Submitting...' : 'Submit Inspection'}
-          </button>
+            {submitting ? 'Submitting to SQL DB...' : 'Save Inspection Record'}
+          </motion.button>
         </div>
       </form>
     </Modal>
   );
 };
+

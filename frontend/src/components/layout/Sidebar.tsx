@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Truck,
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { LayoutContext } from '../../context/LayoutContext';
 import { Logo } from '../common/Logo';
+import { ThemeToggleSwitch } from '../common/ThemeToggleSwitch';
 
 interface NavGroup {
   group: string;
@@ -79,53 +81,68 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 z-40 h-screen text-slate-800 dark:text-[#F8FAFC] transition-all duration-300 ease-in-out flex flex-col border-r border-slate-200 dark:border-[#334155] ${
+      className={`fixed top-0 left-0 z-40 h-screen bg-[#140D09] text-slate-100 transition-all duration-300 ease-out flex flex-col border-r border-[#382218]/80 shadow-2xl ${
         sidebarOpen ? 'w-64' : 'w-16'
       }`}
-      style={{ backgroundColor: '#1E293B' }}
     >
       {/* Sidebar Header */}
-      <div className="flex items-center justify-between h-14 px-3.5 border-b border-slate-200 dark:border-[#334155]">
-        <Logo showText={sidebarOpen} size="sm" />
-        <button
+      <div className="flex items-center justify-between h-16 px-4 border-b border-[#382218]/80 bg-[#1A110C]/90 backdrop-blur">
+        <Logo showText={sidebarOpen} size="sm" variant="light" />
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
           onClick={toggleSidebar}
-          className="p-1 rounded hover:bg-slate-100 dark:hover:bg-[#334155] text-slate-500 dark:text-[#94A3B8] hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC] transition-colors hidden md:block shrink-0"
+          className="p-1.5 rounded-lg hover:bg-[#2C1C14] text-[#A39185] hover:text-white transition-colors hidden md:block shrink-0"
           title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-        </button>
+        </motion.button>
       </div>
 
       {/* Navigation Group Items */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
         {navigationGroups.map((group, idx) => (
           <div key={idx}>
             {sidebarOpen && (
-              <h4 className="px-2.5 text-[10px] font-semibold text-slate-500 dark:text-[#94A3B8] uppercase tracking-wider mb-1">
+              <h4 className="px-3 text-[10px] font-bold text-[#A39185] uppercase tracking-widest mb-1.5">
                 {group.group}
               </h4>
             )}
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {group.items.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
                   className={({ isActive }) =>
-                    `flex items-center px-2.5 py-2 rounded-[8px] text-xs font-medium transition-colors ${
+                    `relative flex items-center px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 group ${
                       isActive
-                        ? 'bg-[#2563EB] text-white font-semibold'
-                        : 'text-slate-500 dark:text-[#94A3B8] hover:bg-slate-100 dark:hover:bg-[#334155]/60 hover:text-slate-900 dark:hover:text-slate-800 dark:text-[#F8FAFC]'
+                        ? 'bg-gradient-to-r from-[#C87A38] to-[#B36423] text-white shadow-lg shadow-[#C87A38]/30 glow-accent'
+                        : 'text-[#C5B7AE] hover:bg-[#281A12] hover:text-white'
                     }`
                   }
                 >
-                  <span className="shrink-0 mr-2.5">{item.icon}</span>
-                  {sidebarOpen && <span className="truncate">{item.name}</span>}
+                  {({ isActive }) => (
+                    <>
+                      <span className={`shrink-0 mr-3 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : ''}`}>
+                        {item.icon}
+                      </span>
+                      {sidebarOpen && <span className="truncate">{item.name}</span>}
+                    </>
+                  )}
                 </NavLink>
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Theme Sliding Switch Footer */}
+      <div className="p-3 border-t border-[#382218]/80 bg-[#1A110C]/80 flex items-center justify-between">
+        {sidebarOpen && <span className="text-[11px] font-bold text-[#A39185] uppercase tracking-wider">Appearance</span>}
+        <ThemeToggleSwitch size="sm" showLabels={false} />
+      </div>
     </aside>
   );
 };
+
+
