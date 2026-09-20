@@ -306,8 +306,14 @@ function App() {
       data.fuelCapacity = Number(data.fuelCapacity || 50);
       data.currentFuelLevel = Number(data.currentFuelLevel || 25);
       data.vehicleTypeId = Number(data.vehicleTypeId || 1);
-      data.latitude = data.latitude !== "" && data.latitude !== null && data.latitude !== undefined ? Number(data.latitude) : null;
-      data.longitude = data.longitude !== "" && data.longitude !== null && data.longitude !== undefined ? Number(data.longitude) : null;
+      data.latitude =
+        data.latitude !== "" && data.latitude !== null && data.latitude !== undefined
+          ? Number(data.latitude)
+          : null;
+      data.longitude =
+        data.longitude !== "" && data.longitude !== null && data.longitude !== undefined
+          ? Number(data.longitude)
+          : null;
       data.speedKmh = Number(data.speedKmh || 0);
       data.heading = Number(data.heading || 0);
       data.createdBy = "ADMIN";
@@ -318,13 +324,15 @@ function App() {
     if (page === "Drivers") {
       data.safetyScore = Number(data.safetyScore || 100);
       data.totalTripsCompleted = Number(data.totalTripsCompleted || 0);
-      data.driverName = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+      data.driverName = `${data.firstName || ""}`.trim();
       data.licenseNo = data.licenseNumber || "";
       data.createdBy = "ADMIN";
       data.updatedBy = "ADMIN";
       data.isDeleted = false;
       if (!data.licenseExpiryDate) {
-        data.licenseExpiryDate = new Date(Date.now() + 5*365*24*60*60*1000).toISOString().split("T")[0];
+        data.licenseExpiryDate = new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0];
       }
       if (!data.joinedDate) {
         data.joinedDate = new Date().toISOString().split("T")[0];
@@ -403,27 +411,25 @@ function App() {
       const data = prepareData();
 
       if (editId) {
-        await axios.put(
-          `${API}/${config.endpoint}/${editId}`,
-          data
+        await axios.put(`${API}/${config.endpoint}/${editId}`, data);
+        showToast(
+          `${page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)} updated successfully!`
         );
-        showToast(`${page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)} updated successfully!`);
       } else {
-        await axios.post(
-          `${API}/${config.endpoint}`,
-          data
+        await axios.post(`${API}/${config.endpoint}`, data);
+        showToast(
+          `${page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)} created successfully!`
         );
-        showToast(`${page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)} created successfully!`);
       }
 
       setShowForm(false);
       setEditId(null);
       setForm({});
       await loadData();
-    } catch (error) {
+    } catch (err) {
       setError(
-        error.response?.data?.message ||
-        "Unable to save record. Check the backend API."
+        err.response?.data?.message ||
+          "Unable to save record. Check the backend API."
       );
     } finally {
       setLoading(false);
@@ -440,9 +446,7 @@ function App() {
       setError("");
       const config = pageConfig[page];
 
-      await axios.delete(
-        `${API}/${config.endpoint}/${id}`
-      );
+      await axios.delete(`${API}/${config.endpoint}/${id}`);
 
       showToast("Record deleted successfully!");
       await loadData();
@@ -466,20 +470,22 @@ function App() {
     },
     {
       title: "Active Trips",
-      value: stats?.ongoingTrips ?? trips.filter(
-        x =>
-          String(x.status).toLowerCase() === "active" ||
-          String(x.status).toLowerCase() === "ongoing" ||
-          String(x.status).toLowerCase() === "in_transit"
-      ).length,
+      value:
+        stats?.ongoingTrips ??
+        trips.filter((x) =>
+          ["active", "ongoing", "in_transit"].includes(
+            String(x.status).toLowerCase()
+          )
+        ).length,
       icon: Route
     },
     {
       title: "Maintenance",
-      value: stats?.maintenanceVehicles ?? maintenance.filter(
-        x =>
-          String(x.status).toLowerCase() !== "completed"
-      ).length,
+      value:
+        stats?.maintenanceVehicles ??
+        maintenance.filter(
+          (x) => String(x.status).toLowerCase() !== "completed"
+        ).length,
       icon: Wrench
     }
   ];
@@ -494,9 +500,7 @@ function App() {
         <div>
           <p>Good morning 👋</p>
           <h2>Welcome back, Admin</h2>
-          <span>
-            Here's what's happening with your fleet today.
-          </span>
+          <span>Here's what's happening with your fleet today.</span>
         </div>
 
         <div className="live-status">
@@ -537,9 +541,7 @@ function App() {
         <div className="panel">
           <div className="panel-header">
             <div>
-              <span className="panel-label">
-                REAL TIME
-              </span>
+              <span className="panel-label">REAL TIME</span>
               <h3>Fleet Tracking</h3>
             </div>
 
@@ -574,9 +576,15 @@ function App() {
 
             <div className="map-center">
               <MapPin size={30} />
-              <span>
-                {vehicles.length} Vehicles
-              </span>
+              <span>{vehicles.length} Vehicles</span>
+            </div>
+          </div>
+
+          {/* Animated truck road banner */}
+          <div className="fleet-road">
+            <div className="fleet-truck">
+              <div className="fleet-wheel one"></div>
+              <div className="fleet-wheel two"></div>
             </div>
           </div>
         </div>
@@ -584,9 +592,7 @@ function App() {
         <div className="panel">
           <div className="panel-header">
             <div>
-              <span className="panel-label">
-                OVERVIEW
-              </span>
+              <span className="panel-label">OVERVIEW</span>
               <h3>Fleet Activity</h3>
             </div>
           </div>
@@ -652,24 +658,16 @@ function App() {
             <div>
               <p>{page.toUpperCase()}</p>
               <h2>{page}</h2>
-              <span>
-                Manage your {page.toLowerCase()} records.
-              </span>
+              <span>Manage your {page.toLowerCase()} records.</span>
             </div>
 
             <div className="top-actions">
-              <button
-                className="theme-button"
-                onClick={loadData}
-              >
+              <button className="theme-button" onClick={loadData}>
                 <RefreshCw size={17} />
                 Refresh
               </button>
 
-              <button
-                className="theme-button"
-                onClick={openAddForm}
-              >
+              <button className="theme-button" onClick={openAddForm}>
                 <Plus size={17} />
                 Add {page === "Vehicle Types" ? "Type" : page.slice(0, -1)}
               </button>
@@ -679,12 +677,8 @@ function App() {
           <div className="panel">
             <div className="panel-header">
               <div>
-                <span className="panel-label">
-                  DATABASE RECORDS
-                </span>
-                <h3>
-                  {config.data.length} Records
-                </h3>
+                <span className="panel-label">DATABASE RECORDS</span>
+                <h3>{config.data.length} Records</h3>
               </div>
 
               <Icon size={21} />
@@ -699,14 +693,8 @@ function App() {
                 }}
               >
                 <Icon size={45} />
-
-                <h3>
-                  No {page.toLowerCase()} found
-                </h3>
-
-                <p>
-                  Click the Add button to create a record.
-                </p>
+                <h3>No {page.toLowerCase()} found</h3>
+                <p>Click the Add button to create a record.</p>
               </div>
             ) : (
               <div style={{ overflowX: "auto" }}>
@@ -719,23 +707,20 @@ function App() {
                 >
                   <thead>
                     <tr>
-                      {config.columns.map(
-                        ([key, label]) => (
-                          <th
-                            key={key}
-                            style={{
-                              padding: "14px",
-                              textAlign: "left",
-                              fontSize: "11px",
-                              opacity: 0.55,
-                              borderBottom:
-                                "1px solid rgba(148,163,184,0.15)"
-                            }}
-                          >
-                            {label}
-                          </th>
-                        )
-                      )}
+                      {config.columns.map(([key, label]) => (
+                        <th
+                          key={key}
+                          style={{
+                            padding: "14px",
+                            textAlign: "left",
+                            fontSize: "11px",
+                            opacity: 0.55,
+                            borderBottom: "1px solid rgba(148,163,184,0.15)"
+                          }}
+                        >
+                          {label}
+                        </th>
+                      ))}
 
                       <th
                         style={{
@@ -752,25 +737,23 @@ function App() {
                   <tbody>
                     {config.data.map((item) => (
                       <tr key={item.id}>
-                        {config.columns.map(
-                          ([key]) => (
-                            <td
-                              key={key}
-                              style={{
-                                padding: "14px",
-                                fontSize: "12px",
-                                borderBottom:
-                                  "1px solid rgba(148,163,184,0.08)"
-                              }}
-                            >
-                              {item[key] === null ||
-                                item[key] === undefined ||
-                                item[key] === ""
-                                ? "-"
-                                : String(item[key])}
-                            </td>
-                          )
-                        )}
+                        {config.columns.map(([key]) => (
+                          <td
+                            key={key}
+                            style={{
+                              padding: "14px",
+                              fontSize: "12px",
+                              borderBottom:
+                                "1px solid rgba(148,163,184,0.08)"
+                            }}
+                          >
+                            {item[key] === null ||
+                            item[key] === undefined ||
+                            item[key] === ""
+                              ? "-"
+                              : String(item[key])}
+                          </td>
+                        ))}
 
                         <td
                           style={{
@@ -781,18 +764,14 @@ function App() {
                         >
                           <button
                             className="icon-button"
-                            onClick={() =>
-                              openEditForm(item)
-                            }
+                            onClick={() => openEditForm(item)}
                           >
                             <Pencil size={16} />
                           </button>
 
                           <button
                             className="icon-button"
-                            onClick={() =>
-                              deleteItem(item.id)
-                            }
+                            onClick={() => deleteItem(item.id)}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -811,7 +790,7 @@ function App() {
 
   const renderTracking = () => {
     const locatedVehicles = vehicles.filter(
-      vehicle =>
+      (vehicle) =>
         vehicle.latitude !== null &&
         vehicle.longitude !== null &&
         vehicle.latitude !== undefined &&
@@ -826,15 +805,10 @@ function App() {
           <div>
             <p>REAL TIME</p>
             <h2>Live Tracking</h2>
-            <span>
-              Vehicle location information from your fleet.
-            </span>
+            <span>Vehicle location information from your fleet.</span>
           </div>
 
-          <button
-            className="theme-button"
-            onClick={loadData}
-          >
+          <button className="theme-button" onClick={loadData}>
             <RefreshCw size={17} />
             Refresh
           </button>
@@ -843,11 +817,11 @@ function App() {
         <div className="panel">
           <div className="panel-header">
             <div>
-              <span className="panel-label">
-                GPS MONITORING
-              </span>
+              <span className="panel-label">GPS MONITORING</span>
               <h3>
-                {locatedVehicles.length > 0 ? `${locatedVehicles.length} Located Vehicles` : `${vehicles.length} Fleet Vehicles`}
+                {locatedVehicles.length > 0
+                  ? `${locatedVehicles.length} Located Vehicles`
+                  : `${vehicles.length} Fleet Vehicles`}
               </h3>
             </div>
           </div>
@@ -861,15 +835,17 @@ function App() {
                   key={vehicle.id}
                   className="map-pin"
                   style={{
-                    left: `${15 + (index * 20) % 70}%`,
-                    top: `${20 + (index * 25) % 60}%`
+                    left: `${15 + ((index * 20) % 70)}%`,
+                    top: `${20 + ((index * 25) % 60)}%`
                   }}
                   animate={{ y: [0, -7, 0] }}
                   transition={{
                     repeat: Infinity,
                     duration: 2
                   }}
-                  title={`${vehicle.make || ''} ${vehicle.model || ''} (${vehicle.plateNumber || ''}) - ${vehicle.location || 'Active'}`}
+                  title={`${vehicle.make || ""} ${vehicle.model || ""} (${
+                    vehicle.plateNumber || ""
+                  }) - ${vehicle.location || "Active"}`}
                 >
                   <Truck size={18} />
                 </motion.div>
@@ -901,26 +877,32 @@ function App() {
 
   const getInputType = (key) => {
     if (key.toLowerCase().includes("date")) return "date";
-    if (key.includes("Departure") || key.includes("Arrival")) return "datetime-local";
-    if (["year", "mileage", "fuelCapacity", "currentFuelLevel", "latitude", "longitude", "safetyScore", "distanceKm", "estimatedCostInr", "odometerReading", "liters", "costPerLiterInr", "totalCostInr"].includes(key)) return "number";
+    if (key.includes("Departure") || key.includes("Arrival"))
+      return "datetime-local";
+    if (
+      [
+        "year",
+        "mileage",
+        "fuelCapacity",
+        "currentFuelLevel",
+        "latitude",
+        "longitude",
+        "safetyScore",
+        "distanceKm",
+        "estimatedCostInr",
+        "odometerReading",
+        "liters",
+        "costPerLiterInr",
+        "totalCostInr"
+      ].includes(key)
+    )
+      return "number";
     return "text";
   };
 
   return (
-    <div
-      className={
-        darkMode
-          ? "app dark"
-          : "app light"
-      }
-    >
-      <aside
-        className={
-          menuOpen
-            ? "sidebar open"
-            : "sidebar"
-        }
-      >
+    <div className={darkMode ? "app dark" : "app light"}>
+      <aside className={menuOpen ? "sidebar open" : "sidebar"}>
         <div className="logo">
           <div className="logo-icon">
             <Truck size={25} />
@@ -933,47 +915,31 @@ function App() {
         </div>
 
         <nav>
-          <p className="menu-title">
-            MAIN MENU
-          </p>
+          <p className="menu-title">MAIN MENU</p>
 
-          {navItems.slice(0, 5).map(
-            ([name, Icon]) => (
-              <button
-                key={name}
-                className={
-                  page === name
-                    ? "nav-item active"
-                    : "nav-item"
-                }
-                onClick={() => setPage(name)}
-              >
-                <Icon size={19} />
-                {name}
-              </button>
-            )
-          )}
+          {navItems.slice(0, 5).map(([name, Icon]) => (
+            <button
+              key={name}
+              className={page === name ? "nav-item active" : "nav-item"}
+              onClick={() => setPage(name)}
+            >
+              <Icon size={19} />
+              {name}
+            </button>
+          ))}
 
-          <p className="menu-title">
-            MANAGEMENT
-          </p>
+          <p className="menu-title">MANAGEMENT</p>
 
-          {navItems.slice(5).map(
-            ([name, Icon]) => (
-              <button
-                key={name}
-                className={
-                  page === name
-                    ? "nav-item active"
-                    : "nav-item"
-                }
-                onClick={() => setPage(name)}
-              >
-                <Icon size={19} />
-                {name}
-              </button>
-            )
-          )}
+          {navItems.slice(5).map(([name, Icon]) => (
+            <button
+              key={name}
+              className={page === name ? "nav-item active" : "nav-item"}
+              onClick={() => setPage(name)}
+            >
+              <Icon size={19} />
+              {name}
+            </button>
+          ))}
         </nav>
 
         <div className="sidebar-bottom">
@@ -990,9 +956,7 @@ function App() {
         <header className="topbar">
           <button
             className="icon-button"
-            onClick={() =>
-              setMenuOpen(!menuOpen)
-            }
+            onClick={() => setMenuOpen(!menuOpen)}
           >
             <Menu size={21} />
           </button>
@@ -1005,34 +969,21 @@ function App() {
           <div className="top-actions">
             <button
               className="icon-button"
-              onClick={() =>
-                setPage("Notifications")
-              }
+              onClick={() => setPage("Notifications")}
             >
               <Bell size={20} />
             </button>
 
             <button
               className="theme-button"
-              onClick={() =>
-                setDarkMode(!darkMode)
-              }
+              onClick={() => setDarkMode(!darkMode)}
             >
-              {darkMode ? (
-                <Sun size={19} />
-              ) : (
-                <Moon size={19} />
-              )}
-
-              {darkMode
-                ? "Light"
-                : "Dark"}
+              {darkMode ? <Sun size={19} /> : <Moon size={19} />}
+              {darkMode ? "Light" : "Dark"}
             </button>
 
             <div className="profile">
-              <div className="profile-avatar">
-                A
-              </div>
+              <div className="profile-avatar">A</div>
 
               <div>
                 <strong>Admin</strong>
@@ -1087,8 +1038,7 @@ function App() {
               margin: "20px 30px 0",
               padding: "12px 18px",
               borderRadius: "10px",
-              background:
-                "rgba(239,68,68,0.12)",
+              background: "rgba(239,68,68,0.12)",
               color: "#ef4444",
               border: "1px solid rgba(239,68,68,0.3)",
               fontSize: "13px"
@@ -1098,11 +1048,9 @@ function App() {
           </div>
         )}
 
-        {page === "Dashboard" &&
-          renderDashboard()}
+        {page === "Dashboard" && renderDashboard()}
 
-        {page === "Live Tracking" &&
-          renderTracking()}
+        {page === "Live Tracking" && renderTracking()}
 
         {page === "Settings" && (
           <section className="content">
@@ -1110,57 +1058,40 @@ function App() {
               <div>
                 <p>CONFIGURATION</p>
                 <h2>Settings</h2>
-                <span>
-                  Customize your FleetFlow experience.
-                </span>
+                <span>Customize your FleetFlow experience.</span>
               </div>
             </div>
 
             <div className="panel">
               <div className="activity-item">
                 <div className="activity-circle blue">
-                  {darkMode ? (
-                    <Moon size={18} />
-                  ) : (
-                    <Sun size={18} />
-                  )}
+                  {darkMode ? <Moon size={18} /> : <Sun size={18} />}
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <strong>
-                    Appearance
-                  </strong>
-
-                  <span>
-                    Change dashboard theme.
-                  </span>
+                  <strong>Appearance</strong>
+                  <span>Change dashboard theme.</span>
                 </div>
 
                 <button
                   className="theme-button"
-                  onClick={() =>
-                    setDarkMode(!darkMode)
-                  }
+                  onClick={() => setDarkMode(!darkMode)}
                 >
-                  {darkMode
-                    ? "Light Mode"
-                    : "Dark Mode"}
+                  {darkMode ? "Light Mode" : "Dark Mode"}
                 </button>
               </div>
             </div>
           </section>
         )}
 
-        {pageConfig[page] &&
-          renderCrudPage()}
+        {pageConfig[page] && renderCrudPage()}
 
         {showForm && pageConfig[page] && (
           <div
             style={{
               position: "fixed",
               inset: 0,
-              background:
-                "rgba(0,0,0,0.65)",
+              background: "rgba(0,0,0,0.65)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1184,39 +1115,26 @@ function App() {
                 overflowY: "auto",
                 borderRadius: "18px",
                 padding: "25px",
-                background: darkMode
-                  ? "#111827"
-                  : "#ffffff",
-                border:
-                  "1px solid rgba(148,163,184,0.2)"
+                background: darkMode ? "#111827" : "#ffffff",
+                border: "1px solid rgba(148,163,184,0.2)"
               }}
             >
               <div
                 style={{
                   display: "flex",
-                  justifyContent:
-                    "space-between",
+                  justifyContent: "space-between",
                   alignItems: "center",
                   marginBottom: "20px"
                 }}
               >
                 <div>
-                  <span className="panel-label">
-                    FLEET MANAGEMENT
-                  </span>
-
-                  <h2>
-                    {editId
-                      ? `Edit ${page}`
-                      : `Add ${page}`}
-                  </h2>
+                  <span className="panel-label">FLEET MANAGEMENT</span>
+                  <h2>{editId ? `Edit ${page}` : `Add ${page}`}</h2>
                 </div>
 
                 <button
                   className="icon-button"
-                  onClick={() =>
-                    setShowForm(false)
-                  }
+                  onClick={() => setShowForm(false)}
                 >
                   <X size={19} />
                 </button>
@@ -1226,91 +1144,72 @@ function App() {
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns:
-                      "repeat(2, 1fr)",
+                    gridTemplateColumns: "repeat(2, 1fr)",
                     gap: "15px"
                   }}
                 >
-                  {pageConfig[
-                    page
-                  ].fields.map(
-                    ([key, label]) => (
-                      <div key={key}>
-                        <label
-                          style={{
-                            display: "block",
-                            fontSize: "11px",
-                            marginBottom: "7px",
-                            opacity: 0.65
-                          }}
-                        >
-                          {label}
-                        </label>
+                  {pageConfig[page].fields.map(([key, label]) => (
+                    <div key={key}>
+                      <label
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          marginBottom: "7px",
+                          opacity: 0.65
+                        }}
+                      >
+                        {label}
+                      </label>
 
-                        <input
-                          type={getInputType(key)}
-                          step={getInputType(key) === "number" ? "any" : undefined}
-                          name={key}
-                          value={
-                            form[key] || ""
-                          }
-                          onChange={
-                            handleChange
-                          }
-                          required={
-                            [
-                              "plateNumber",
-                              "vin",
-                              "make",
-                              "model",
-                              "year",
-                              "fuelType",
-                              "status",
-                              "firstName",
-                              "lastName",
-                              "phone",
-                              "email",
-                              "licenseNumber",
-                              "tripCode",
-                              "origin",
-                              "destination",
-                              "type",
-                              "serviceCenter",
-                              "stationName",
-                              "title",
-                              "code",
-                              "name"
-                            ].includes(key)
-                          }
-                          style={{
-                            width: "100%",
-                            padding:
-                              "11px 12px",
-                            borderRadius:
-                              "9px",
-                            border:
-                              "1px solid rgba(148,163,184,0.2)",
-                            outline: "none",
-                            background:
-                              darkMode
-                                ? "#172033"
-                                : "#f8fafc",
-                            color:
-                              darkMode
-                                ? "#ffffff"
-                                : "#172033"
-                          }}
-                        />
-                      </div>
-                    )
-                  )}
+                      <input
+                        type={getInputType(key)}
+                        step={
+                          getInputType(key) === "number" ? "any" : undefined
+                        }
+                        name={key}
+                        value={form[key] || ""}
+                        onChange={handleChange}
+                        required={[
+                          "plateNumber",
+                          "vin",
+                          "make",
+                          "model",
+                          "year",
+                          "fuelType",
+                          "status",
+                          "firstName",
+                          "lastName",
+                          "phone",
+                          "email",
+                          "licenseNumber",
+                          "tripCode",
+                          "origin",
+                          "destination",
+                          "type",
+                          "serviceCenter",
+                          "stationName",
+                          "title",
+                          "code",
+                          "name"
+                        ].includes(key)}
+                        style={{
+                          width: "100%",
+                          padding: "11px 12px",
+                          borderRadius: "9px",
+                          border: "1px solid rgba(148,163,184,0.2)",
+                          outline: "none",
+                          background: darkMode ? "#172033" : "#f8fafc",
+                          color: darkMode ? "#ffffff" : "#172033"
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
 
                 <div
                   style={{
                     display: "flex",
-                    justifyContent:
-                      "flex-end",
+                    justifyContent: "flex-end",
                     gap: "10px",
                     marginTop: "25px"
                   }}
@@ -1318,9 +1217,7 @@ function App() {
                   <button
                     type="button"
                     className="theme-button"
-                    onClick={() =>
-                      setShowForm(false)
-                    }
+                    onClick={() => setShowForm(false)}
                   >
                     Cancel
                   </button>
@@ -1329,14 +1226,11 @@ function App() {
                     type="submit"
                     className="theme-button"
                     style={{
-                      background:
-                        "#2563eb",
+                      background: "#2563eb",
                       color: "white"
                     }}
                   >
-                    {editId
-                      ? "Update"
-                      : "Save"}
+                    {editId ? "Update" : "Save"}
                   </button>
                 </div>
               </form>

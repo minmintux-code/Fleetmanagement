@@ -1,16 +1,38 @@
-# React + Vite
+# Fleet Management System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This is the React + Vite frontend application for the **Fleet Management System** capstone project.
 
-Currently, two official plugins are available:
+For full project documentation, database schemas, API details, and complete architecture diagrams, please refer to the main [Root README](../README.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack
+- **Framework:** React.js (v19)
+- **Build Tool:** Vite
+- **HTTP Client:** Axios
+- **Styling:** CSS & Bootstrap 5
+- **Animations:** Framer Motion
+- **Icons:** Lucide React
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## Quick Start (Frontend Only)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Navigate to the `frontend` folder:
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open `http://localhost:5173` in your browser.
+
+*Note: Make sure the Spring Boot backend server is running on `http://localhost:8080` for API requests to work.*
