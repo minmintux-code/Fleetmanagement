@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import {
@@ -13,22 +13,39 @@ import {
   Sun,
   Moon,
   Menu,
-  Activity,
   Route,
-  ShieldCheck,
   Plus,
   Pencil,
   Trash2,
   RefreshCw,
   X,
   Car,
-  CheckCircle2
+  CheckCircle2,
+  LogOut,
+  User as UserIcon,
+  UserCheck,
+  UserX,
+  Mail,
+  Phone,
+  Shield,
+  Loader2
 } from "lucide-react";
+import FleetoraLogo from "./assets/FleetoraLogo";
+import AuthPage from "./components/AuthPage";
 import "./App.css";
 
 const API = "http://localhost:8080/api";
 
 function App() {
+  // Authentication State
+  const [token, setToken] = useState(() => localStorage.getItem("fleetora_token") || null);
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("fleetora_user");
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [authChecking, setAuthChecking] = useState(true);
+
+  // UI & Navigation State
   const [darkMode, setDarkMode] = useState(true);
   const [menuOpen, setMenuOpen] = useState(true);
   const [page, setPage] = useState("Dashboard");
@@ -38,6 +55,7 @@ function App() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
+  // Fleet Data State
   const [vehicles, setVehicles] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [vehicleTypes, setVehicleTypes] = useState([]);
@@ -45,18 +63,72 @@ function App() {
   const [maintenance, setMaintenance] = useState([]);
   const [fuel, setFuel] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [usersList, setUsersList] = useState([]);
   const [stats, setStats] = useState(null);
 
   const [form, setForm] = useState({});
 
-  const showToast = (msg) => {
-    setSuccessMessage(msg);
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 3500);
-  };
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("fleetora_token");
+    localStorage.removeItem("fleetora_user");
+    delete axios.defaults.headers.common["Authorization"];
+    setToken(null);
+    setUser(null);
+    setPage("Dashboard");
+    window.history.pushState(null, "", "/");
+  }, []);
 
-  const loadData = async () => {
+  // Setup Axios Authorization Header & 401 Interceptor
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
+    }
+  }, [token]);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (err) => {
+        if (err.response && err.response.status === 401) {
+          handleLogout();
+        }
+        return Promise.reject(err);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [handleLogout]);
+
+  // Title and Initial Auth Check
+  useEffect(() => {
+    document.title = "FLEETORA | Smart Fleet Operations";
+
+    const verifyAuth = async () => {
+      const storedToken = localStorage.getItem("fleetora_token");
+      if (storedToken) {
+        try {
+          axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
+          const res = await axios.get(`${API}/auth/me`);
+          if (res.data && res.data.user) {
+            setUser(res.data.user);
+            localStorage.setItem("fleetora_user", JSON.stringify(res.data.user));
+          } else {
+            handleLogout();
+          }
+        } catch {
+          handleLogout();
+        }
+      }
+      setAuthChecking(false);
+    };
+
+    verifyAuth();
+  }, [handleLogout]);
+
+  const loadData = useCallback(async () => {
+    if (!token) return;
+
     setLoading(true);
     setError("");
 
@@ -69,6 +141,10 @@ function App() {
       ["fuel", setFuel],
       ["notifications", setNotifications]
     ];
+
+    if (user && user.role === "ADMIN") {
+      requests.push(["users", setUsersList]);
+    }
 
     for (const [endpoint, setter] of requests) {
       try {
@@ -91,11 +167,66 @@ function App() {
     }
 
     setLoading(false);
+  }, [token, user]);
+
+  const handleAuthSuccess = (newToken, newUser) => {
+    localStorage.setItem("fleetora_token", newToken);
+    localStorage.setItem("fleetora_user", JSON.stringify(newUser));
+    setToken(newToken);
+    setUser(newUser);
+    setPage("Dashboard");
+  };
+
+  const showToast = (msg) => {
+    setSuccessMessage(msg);
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 3500);
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    let active = true;
+    if (token && user) {
+      Promise.resolve().then(() => {
+        if (active) {
+          loadData();
+        }
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [token, user, loadData]);
+
+  const isAdmin = user && user.role === "ADMIN";
+
+  // Navigation Items according to role
+  const allNavItems = [
+    ["Dashboard", LayoutDashboard, ["ADMIN", "USER"]],
+    ["Vehicles", Truck, ["ADMIN", "USER"]],
+    ["Drivers", Users, ["ADMIN"]],
+    ["Trips", Route, ["ADMIN", "USER"]],
+    ["Maintenance", Wrench, ["ADMIN"]],
+    ["Fuel", Fuel, ["ADMIN"]],
+    ["Vehicle Types", Car, ["ADMIN"]],
+    ["User Management", Users, ["ADMIN"]],
+    ["Live Tracking", MapPin, ["ADMIN", "USER"]],
+    ["Notifications", Bell, ["ADMIN", "USER"]],
+    ["Profile", UserIcon, ["ADMIN", "USER"]],
+    ["Settings", Settings, ["ADMIN"]]
+  ];
+
+  const visibleNavItems = allNavItems.filter(([, , roles]) =>
+    roles.includes(user?.role || "USER")
+  );
+
+  const mainNavItems = visibleNavItems.filter(([name]) =>
+    ["Dashboard", "Vehicles", "Drivers", "Trips", "Live Tracking"].includes(name)
+  );
+
+  const managementNavItems = visibleNavItems.filter(
+    ([name]) => !["Dashboard", "Vehicles", "Drivers", "Trips", "Live Tracking"].includes(name)
+  );
 
   const pageConfig = {
     Vehicles: {
@@ -316,8 +447,8 @@ function App() {
           : null;
       data.speedKmh = Number(data.speedKmh || 0);
       data.heading = Number(data.heading || 0);
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
     }
 
@@ -326,8 +457,8 @@ function App() {
       data.totalTripsCompleted = Number(data.totalTripsCompleted || 0);
       data.driverName = `${data.firstName || ""}`.trim();
       data.licenseNo = data.licenseNumber || "";
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       if (!data.licenseExpiryDate) {
         data.licenseExpiryDate = new Date(Date.now() + 5 * 365 * 24 * 60 * 60 * 1000)
@@ -341,8 +472,8 @@ function App() {
 
     if (page === "Trips") {
       data.distanceKm = Number(data.distanceKm || 0);
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       if (data.scheduledDeparture && !data.scheduledDeparture.includes("T")) {
         data.scheduledDeparture = `${data.scheduledDeparture}T09:00:00`;
@@ -355,8 +486,8 @@ function App() {
     if (page === "Maintenance") {
       data.estimatedCostInr = Number(data.estimatedCostInr || 0);
       data.odometerReading = Number(data.odometerReading || 0);
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       if (!data.scheduledDate) {
         data.scheduledDate = new Date().toISOString().split("T")[0];
@@ -372,8 +503,8 @@ function App() {
         data.totalCostInr = Number(data.totalCostInr);
       }
       data.odometerReading = Number(data.odometerReading || 0);
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       if (!data.fuelDate) {
         data.fuelDate = new Date().toISOString().split("T")[0];
@@ -381,16 +512,16 @@ function App() {
     }
 
     if (page === "Notifications") {
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       data.timestamp = new Date().toISOString();
       data.isRead = false;
     }
 
     if (page === "Vehicle Types") {
-      data.createdBy = "ADMIN";
-      data.updatedBy = "ADMIN";
+      data.createdBy = user?.username || "ADMIN";
+      data.updatedBy = user?.username || "ADMIN";
       data.isDeleted = false;
       if (!data.code) {
         data.code = (data.name || "TYPE").toUpperCase().replace(/\s+/g, "_");
@@ -447,197 +578,384 @@ function App() {
       const config = pageConfig[page];
 
       await axios.delete(`${API}/${config.endpoint}/${id}`);
-
-      showToast("Record deleted successfully!");
+      showToast(
+        `${page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)} deleted successfully!`
+      );
       await loadData();
-    } catch {
-      setError("Unable to delete this record.");
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Unable to delete record. Check backend constraints."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const dashboardStats = [
-    {
-      title: "Total Vehicles",
-      value: stats?.totalVehicles ?? vehicles.length,
-      icon: Truck
-    },
-    {
-      title: "Total Drivers",
-      value: stats?.totalDrivers ?? drivers.length,
-      icon: Users
-    },
-    {
-      title: "Active Trips",
-      value:
-        stats?.ongoingTrips ??
-        trips.filter((x) =>
-          ["active", "ongoing", "in_transit"].includes(
-            String(x.status).toLowerCase()
-          )
-        ).length,
-      icon: Route
-    },
-    {
-      title: "Maintenance",
-      value:
-        stats?.maintenanceVehicles ??
-        maintenance.filter(
-          (x) => String(x.status).toLowerCase() !== "completed"
-        ).length,
-      icon: Wrench
+  // Toggle user status in User Management
+  const toggleUserStatus = async (targetUser) => {
+    try {
+      const newStatus = targetUser.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await axios.put(`${API}/users/${targetUser.id}`, {
+        ...targetUser,
+        status: newStatus,
+        updatedBy: user?.username || "ADMIN"
+      });
+      showToast(`User ${targetUser.username} status set to ${newStatus}`);
+      await loadData();
+    } catch {
+      setError("Failed to update user status.");
     }
-  ];
+  };
+
+  // Delete user in User Management
+  const deleteUserRecord = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await axios.delete(`${API}/users/${userId}`);
+      showToast("User deleted successfully.");
+      await loadData();
+    } catch {
+      setError("Failed to delete user.");
+    }
+  };
 
   const renderDashboard = () => (
-    <section className="content">
-      <motion.div
-        className="welcome"
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+    <div className="dashboard">
+      <div className="welcome">
         <div>
-          <p>Good morning 👋</p>
-          <h2>Welcome back, Admin</h2>
-          <span>Here's what's happening with your fleet today.</span>
+          <p>SYSTEM DASHBOARD</p>
+          <h2>Welcome back, {user?.fullName || user?.username || "Manager"}</h2>
+          <span>
+            Logged in as <strong>{user?.role || "USER"}</strong>. Here is your fleet summary.
+          </span>
         </div>
 
-        <div className="live-status">
-          <Activity size={17} />
-          Live System
-        </div>
-      </motion.div>
-
-      <div className="stats-grid">
-        {dashboardStats.map((stat, index) => {
-          const Icon = stat.icon;
-
-          return (
-            <motion.div
-              className="stat-card"
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-            >
-              <div className="stat-icon">
-                <Icon size={22} />
-              </div>
-
-              <div className="stat-info">
-                <span>{stat.title}</span>
-                <h3>{stat.value}</h3>
-              </div>
-
-              <div className="stat-arrow">↗</div>
-            </motion.div>
-          );
-        })}
+        <button className="theme-button" onClick={loadData}>
+          <RefreshCw size={17} /> Refresh
+        </button>
       </div>
 
-      <div className="dashboard-grid">
+      <div className="stats-grid">
+        <div className="stat-card">
+          <p>Total Vehicles</p>
+          <h3>{stats?.totalVehicles ?? vehicles.length}</h3>
+          <span>Active fleet assets</span>
+        </div>
+
+        <div className="stat-card">
+          <p>Active Vehicles</p>
+          <h3>{stats?.activeVehicles ?? vehicles.filter((v) => v.status === "ACTIVE").length}</h3>
+          <span>Operational on road</span>
+        </div>
+
+        <div className="stat-card">
+          <p>Total Drivers</p>
+          <h3>{stats?.totalDrivers ?? drivers.length}</h3>
+          <span>Verified personnel</span>
+        </div>
+
+        <div className="stat-card">
+          <p>Active Trips</p>
+          <h3>{stats?.activeTrips ?? trips.filter((t) => t.status === "IN_PROGRESS").length}</h3>
+          <span>En-route dispatch</span>
+        </div>
+      </div>
+
+      <div className="grid-2">
         <div className="panel">
           <div className="panel-header">
             <div>
-              <span className="panel-label">REAL TIME</span>
-              <h3>Fleet Tracking</h3>
+              <p className="panel-label">FLEET STATUS</p>
+              <h2>Recent Vehicles</h2>
             </div>
+            {isAdmin && (
+              <button className="add-button" onClick={() => setPage("Vehicles")}>
+                View All
+              </button>
+            )}
+          </div>
 
-            <button
-              className="view-button"
-              onClick={() => setPage("Live Tracking")}
-            >
-              View Map
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Plate</th>
+                <th>Make/Model</th>
+                <th>Status</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vehicles.slice(0, 5).map((item) => (
+                <tr key={item.id}>
+                  <td><strong>{item.plateNumber}</strong></td>
+                  <td>{item.make} {item.model}</td>
+                  <td>
+                    <span className={`badge ${item.status === "ACTIVE" ? "badge-success" : "badge-warning"}`}>
+                      {item.status}
+                    </span>
+                  </td>
+                  <td>{item.location || "Base Yard"}</td>
+                </tr>
+              ))}
+              {vehicles.length === 0 && (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", opacity: 0.6 }}>
+                    No vehicle data loaded.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="panel">
+          <div className="panel-header">
+            <div>
+              <p className="panel-label">OPERATIONS</p>
+              <h2>Recent Trips</h2>
+            </div>
+            <button className="add-button" onClick={() => setPage("Trips")}>
+              View All
             </button>
           </div>
 
-          <div className="map-placeholder">
-            <div className="map-grid"></div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Trip Code</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {trips.slice(0, 5).map((item) => (
+                <tr key={item.id}>
+                  <td><strong>{item.tripCode}</strong></td>
+                  <td>{item.origin}</td>
+                  <td>{item.destination}</td>
+                  <td>
+                    <span className="badge badge-info">{item.status}</span>
+                  </td>
+                </tr>
+              ))}
+              {trips.length === 0 && (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", opacity: 0.6 }}>
+                    No trip records available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-            {vehicles.slice(0, 5).map((vehicle, index) => (
-              <motion.div
-                key={vehicle.id}
-                className="map-pin"
-                style={{
-                  left: `${15 + index * 17}%`,
-                  top: `${25 + (index % 3) * 20}%`
-                }}
-                animate={{ y: [0, -7, 0] }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 2
-                }}
-              >
-                <Truck size={18} />
-              </motion.div>
-            ))}
+  const renderTracking = () => (
+    <section className="content">
+      <div className="welcome">
+        <div>
+          <p>GPS & TELEMATICS</p>
+          <h2>Live Vehicle Tracking</h2>
+          <span>Real-time location, telemetry, and speed updates.</span>
+        </div>
 
-            <div className="map-center">
-              <MapPin size={30} />
-              <span>{vehicles.length} Vehicles</span>
+        <button className="theme-button" onClick={loadData}>
+          <RefreshCw size={17} /> Refresh Signals
+        </button>
+      </div>
+
+      <div className="grid-2">
+        <div className="panel">
+          <div className="panel-header">
+            <div>
+              <p className="panel-label">ACTIVE SIGNALS</p>
+              <h2>Tracked Vehicles</h2>
             </div>
           </div>
 
-          {/* Animated truck road banner */}
-          <div className="fleet-road">
-            <div className="fleet-truck">
-              <div className="fleet-wheel one"></div>
-              <div className="fleet-wheel two"></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {vehicles.map((v) => (
+              <div
+                key={v.id}
+                className="activity-item"
+                style={{ padding: "12px 16px", borderRadius: "12px" }}
+              >
+                <div className="activity-circle blue">
+                  <Truck size={18} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <strong>{v.plateNumber} ({v.make} {v.model})</strong>
+                  <div style={{ fontSize: "12px", opacity: 0.75, marginTop: "2px" }}>
+                    Location: {v.location || "Base Station"} | Speed: {v.speedKmh || 0} km/h
+                  </div>
+                </div>
+                <span className={`badge ${v.status === "ACTIVE" ? "badge-success" : "badge-warning"}`}>
+                  {v.status}
+                </span>
+              </div>
+            ))}
+            {vehicles.length === 0 && (
+              <p style={{ opacity: 0.6, fontSize: "14px", padding: "10px" }}>No vehicles to track.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="panel" style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "350px", textAlign: "center" }}>
+          <MapPin size={54} color="#00f0ff" style={{ marginBottom: "16px", filter: "drop-shadow(0 0 15px rgba(0,240,255,0.4))" }} />
+          <h3 style={{ fontSize: "1.2rem", marginBottom: "8px" }}>Telematic GPS Radar Active</h3>
+          <p style={{ fontSize: "0.85rem", opacity: 0.7, maxWidth: "340px" }}>
+            Connected to Fleetora telematics server. All vehicle GPS coordinates are being recorded in real-time.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+
+  const renderUserManagement = () => (
+    <section className="content">
+      <div className="welcome">
+        <div>
+          <p>ADMINISTRATION</p>
+          <h2>User Management</h2>
+          <span>Manage system access, user roles, and account statuses.</span>
+        </div>
+      </div>
+
+      <div className="panel">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {usersList.map((usr) => (
+              <tr key={usr.id}>
+                <td>{usr.id}</td>
+                <td><strong>{usr.fullName || usr.name}</strong></td>
+                <td>{usr.username}</td>
+                <td>{usr.email || "N/A"}</td>
+                <td>
+                  <span className={`badge ${usr.role === "ADMIN" ? "badge-info" : "badge-secondary"}`}>
+                    {usr.role || "USER"}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${usr.status === "ACTIVE" ? "badge-success" : "badge-warning"}`}>
+                    {usr.status || "ACTIVE"}
+                  </span>
+                </td>
+                <td>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      className="icon-button"
+                      title={usr.status === "ACTIVE" ? "Deactivate User" : "Activate User"}
+                      onClick={() => toggleUserStatus(usr)}
+                    >
+                      {usr.status === "ACTIVE" ? <UserX size={16} color="#ef4444" /> : <UserCheck size={16} color="#10b981" />}
+                    </button>
+                    {usr.username !== "admin" && (
+                      <button
+                        className="icon-button"
+                        title="Delete User"
+                        onClick={() => deleteUserRecord(usr.id)}
+                      >
+                        <Trash2 size={16} color="#ef4444" />
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {usersList.length === 0 && (
+              <tr>
+                <td colSpan="7" style={{ textAlign: "center", opacity: 0.6 }}>
+                  No users recorded.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+
+  const renderProfile = () => (
+    <section className="content">
+      <div className="welcome">
+        <div>
+          <p>USER PROFILE</p>
+          <h2>Account Details</h2>
+          <span>View your profile information and access role.</span>
+        </div>
+      </div>
+
+      <div className="panel" style={{ maxWidth: "600px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "28px" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "linear-gradient(135deg, #2563eb, #00f0ff)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", fontWeight: "700", color: "#fff" }}>
+            {(user?.fullName || user?.username || "U")[0].toUpperCase()}
+          </div>
+          <div>
+            <h3 style={{ fontSize: "1.3rem" }}>{user?.fullName || user?.name || "User Account"}</h3>
+            <span className="badge badge-info" style={{ marginTop: "4px", display: "inline-block" }}>
+              {user?.role || "USER"} ACCOUNT
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div className="activity-item">
+            <UserIcon size={20} color="#3b82f6" />
+            <div style={{ flex: 1 }}>
+              <strong>Username</strong>
+              <div style={{ opacity: 0.8, fontSize: "14px" }}>{user?.username}</div>
+            </div>
+          </div>
+
+          <div className="activity-item">
+            <Mail size={20} color="#3b82f6" />
+            <div style={{ flex: 1 }}>
+              <strong>Email Address</strong>
+              <div style={{ opacity: 0.8, fontSize: "14px" }}>{user?.email || "Not specified"}</div>
+            </div>
+          </div>
+
+          <div className="activity-item">
+            <Phone size={20} color="#3b82f6" />
+            <div style={{ flex: 1 }}>
+              <strong>Phone Number</strong>
+              <div style={{ opacity: 0.8, fontSize: "14px" }}>{user?.phone || "Not specified"}</div>
+            </div>
+          </div>
+
+          <div className="activity-item">
+            <Shield size={20} color="#3b82f6" />
+            <div style={{ flex: 1 }}>
+              <strong>Account Status</strong>
+              <div style={{ opacity: 0.8, fontSize: "14px" }}>{user?.status || "ACTIVE"}</div>
             </div>
           </div>
         </div>
 
-        <div className="panel">
-          <div className="panel-header">
-            <div>
-              <span className="panel-label">OVERVIEW</span>
-              <h3>Fleet Activity</h3>
-            </div>
-          </div>
-
-          <div className="activity-list">
-            <div className="activity-item">
-              <div className="activity-circle green">
-                <Truck size={17} />
-              </div>
-              <div>
-                <strong>Vehicles</strong>
-                <span>{vehicles.length} registered</span>
-              </div>
-            </div>
-
-            <div className="activity-item">
-              <div className="activity-circle blue">
-                <Users size={17} />
-              </div>
-              <div>
-                <strong>Drivers</strong>
-                <span>{drivers.length} registered</span>
-              </div>
-            </div>
-
-            <div className="activity-item">
-              <div className="activity-circle orange">
-                <Fuel size={17} />
-              </div>
-              <div>
-                <strong>Fuel Records</strong>
-                <span>{fuel.length} records</span>
-              </div>
-            </div>
-
-            <div className="activity-item">
-              <div className="activity-circle purple">
-                <Wrench size={17} />
-              </div>
-              <div>
-                <strong>Maintenance</strong>
-                <span>{maintenance.length} records</span>
-              </div>
-            </div>
-          </div>
+        <div style={{ marginTop: "28px" }}>
+          <button
+            className="auth-submit-btn login-btn"
+            style={{ width: "auto", padding: "10px 24px" }}
+            onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            <span>LOGOUT FROM FLEETORA</span>
+          </button>
         </div>
       </div>
     </section>
@@ -646,312 +964,181 @@ function App() {
   const renderCrudPage = () => {
     const config = pageConfig[page];
     if (!config) return null;
-    const Icon = config.icon;
-
-    return (
-      <section className="content">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="welcome">
-            <div>
-              <p>{page.toUpperCase()}</p>
-              <h2>{page}</h2>
-              <span>Manage your {page.toLowerCase()} records.</span>
-            </div>
-
-            <div className="top-actions">
-              <button className="theme-button" onClick={loadData}>
-                <RefreshCw size={17} />
-                Refresh
-              </button>
-
-              <button className="theme-button" onClick={openAddForm}>
-                <Plus size={17} />
-                Add {page === "Vehicle Types" ? "Type" : page.slice(0, -1)}
-              </button>
-            </div>
-          </div>
-
-          <div className="panel">
-            <div className="panel-header">
-              <div>
-                <span className="panel-label">DATABASE RECORDS</span>
-                <h3>{config.data.length} Records</h3>
-              </div>
-
-              <Icon size={21} />
-            </div>
-
-            {config.data.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px 20px",
-                  opacity: 0.55
-                }}
-              >
-                <Icon size={45} />
-                <h3>No {page.toLowerCase()} found</h3>
-                <p>Click the Add button to create a record.</p>
-              </div>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    minWidth: "850px"
-                  }}
-                >
-                  <thead>
-                    <tr>
-                      {config.columns.map(([key, label]) => (
-                        <th
-                          key={key}
-                          style={{
-                            padding: "14px",
-                            textAlign: "left",
-                            fontSize: "11px",
-                            opacity: 0.55,
-                            borderBottom: "1px solid rgba(148,163,184,0.15)"
-                          }}
-                        >
-                          {label}
-                        </th>
-                      ))}
-
-                      <th
-                        style={{
-                          padding: "14px",
-                          fontSize: "11px",
-                          opacity: 0.55
-                        }}
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {config.data.map((item) => (
-                      <tr key={item.id}>
-                        {config.columns.map(([key]) => (
-                          <td
-                            key={key}
-                            style={{
-                              padding: "14px",
-                              fontSize: "12px",
-                              borderBottom:
-                                "1px solid rgba(148,163,184,0.08)"
-                            }}
-                          >
-                            {item[key] === null ||
-                            item[key] === undefined ||
-                            item[key] === ""
-                              ? "-"
-                              : String(item[key])}
-                          </td>
-                        ))}
-
-                        <td
-                          style={{
-                            padding: "14px",
-                            display: "flex",
-                            gap: "8px"
-                          }}
-                        >
-                          <button
-                            className="icon-button"
-                            onClick={() => openEditForm(item)}
-                          >
-                            <Pencil size={16} />
-                          </button>
-
-                          <button
-                            className="icon-button"
-                            onClick={() => deleteItem(item.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </section>
-    );
-  };
-
-  const renderTracking = () => {
-    const locatedVehicles = vehicles.filter(
-      (vehicle) =>
-        vehicle.latitude !== null &&
-        vehicle.longitude !== null &&
-        vehicle.latitude !== undefined &&
-        vehicle.longitude !== undefined &&
-        String(vehicle.latitude) !== "" &&
-        String(vehicle.longitude) !== ""
-    );
 
     return (
       <section className="content">
         <div className="welcome">
           <div>
-            <p>REAL TIME</p>
-            <h2>Live Tracking</h2>
-            <span>Vehicle location information from your fleet.</span>
+            <p>DATA MANAGEMENT</p>
+            <h2>{page}</h2>
+            <span>Manage all recorded {page.toLowerCase()} entries.</span>
           </div>
 
-          <button className="theme-button" onClick={loadData}>
-            <RefreshCw size={17} />
-            Refresh
-          </button>
+          {isAdmin && (
+            <button className="add-button" onClick={openAddForm}>
+              <Plus size={18} /> Add {page === "Vehicle Types" ? "Vehicle Type" : page.slice(0, -1)}
+            </button>
+          )}
         </div>
 
         <div className="panel">
-          <div className="panel-header">
-            <div>
-              <span className="panel-label">GPS MONITORING</span>
-              <h3>
-                {locatedVehicles.length > 0
-                  ? `${locatedVehicles.length} Located Vehicles`
-                  : `${vehicles.length} Fleet Vehicles`}
-              </h3>
-            </div>
-          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                {config.columns.map(([key, label]) => (
+                  <th key={key}>{label}</th>
+                ))}
+                {isAdmin && <th>Actions</th>}
+              </tr>
+            </thead>
 
-          <div className="map-placeholder">
-            <div className="map-grid"></div>
+            <tbody>
+              {config.data.map((item) => (
+                <tr key={item.id}>
+                  {config.columns.map(([key]) => (
+                    <td key={key}>
+                      {key === "status" ? (
+                        <span className={`badge ${item[key] === "ACTIVE" || item[key] === "COMPLETED" ? "badge-success" : "badge-warning"}`}>
+                          {item[key] || "N/A"}
+                        </span>
+                      ) : (
+                        item[key] || "-"
+                      )}
+                    </td>
+                  ))}
 
-            {(locatedVehicles.length > 0 ? locatedVehicles : vehicles).map(
-              (vehicle, index) => (
-                <motion.div
-                  key={vehicle.id}
-                  className="map-pin"
-                  style={{
-                    left: `${15 + ((index * 20) % 70)}%`,
-                    top: `${20 + ((index * 25) % 60)}%`
-                  }}
-                  animate={{ y: [0, -7, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 2
-                  }}
-                  title={`${vehicle.make || ""} ${vehicle.model || ""} (${
-                    vehicle.plateNumber || ""
-                  }) - ${vehicle.location || "Active"}`}
-                >
-                  <Truck size={18} />
-                </motion.div>
-              )
-            )}
+                  {isAdmin && (
+                    <td>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                          className="icon-button"
+                          onClick={() => openEditForm(item)}
+                          title="Edit"
+                        >
+                          <Pencil size={16} />
+                        </button>
 
-            <div className="map-center">
-              <MapPin size={30} />
-              <span>Live Fleet Map</span>
-            </div>
-          </div>
+                        <button
+                          className="icon-button"
+                          onClick={() => deleteItem(item.id)}
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              ))}
+
+              {config.data.length === 0 && (
+                <tr>
+                  <td colSpan={config.columns.length + (isAdmin ? 1 : 0)} style={{ textAlign: "center", opacity: 0.6 }}>
+                    No records found for {page}.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </section>
     );
   };
 
-  const navItems = [
-    ["Dashboard", LayoutDashboard],
-    ["Vehicles", Truck],
-    ["Drivers", Users],
-    ["Trips", Route],
-    ["Live Tracking", MapPin],
-    ["Maintenance", Wrench],
-    ["Fuel", Fuel],
-    ["Notifications", Bell],
-    ["Vehicle Types", Car],
-    ["Settings", Settings]
-  ];
-
   const getInputType = (key) => {
     if (key.toLowerCase().includes("date")) return "date";
-    if (key.includes("Departure") || key.includes("Arrival"))
-      return "datetime-local";
+    if (key.toLowerCase().includes("email")) return "email";
     if (
       [
         "year",
         "mileage",
-        "fuelCapacity",
-        "currentFuelLevel",
-        "latitude",
-        "longitude",
-        "safetyScore",
-        "distanceKm",
-        "estimatedCostInr",
-        "odometerReading",
+        "fuelcapacity",
+        "currentfuellevel",
+        "safetyscore",
+        "distancekm",
+        "estimatedcostinr",
         "liters",
-        "costPerLiterInr",
-        "totalCostInr"
-      ].includes(key)
-    )
+        "costperliterinr",
+        "totalcostinr",
+        "odometerreading",
+        "latitude",
+        "longitude"
+      ].includes(key.toLowerCase())
+    ) {
       return "number";
+    }
     return "text";
   };
 
+  // 1. Initial Loading Screen
+  if (authChecking) {
+    return (
+      <div className="fleetora-auth-container" style={{ flexDirection: "column" }}>
+        <FleetoraLogo width={300} height={130} />
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "30px", color: "#00f0ff" }}>
+          <Loader2 size={24} className="spinner-icon" />
+          <span style={{ fontSize: "0.95rem", letterSpacing: "1px", fontWeight: 600 }}>INITIALIZING FLEETORA SECURE CONSOLE...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated State -> Render Auth Landing Page
+  if (!token || !user) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // 3. Authenticated State -> Render Main Dashboard App
   return (
     <div className={darkMode ? "app dark" : "app light"}>
+      {/* SIDEBAR WITH OFFICIAL LOGO */}
       <aside className={menuOpen ? "sidebar open" : "sidebar"}>
-        <div className="logo">
-          <div className="logo-icon">
-            <Truck size={25} />
-          </div>
-
-          <div>
-            <h2>FleetFlow</h2>
-            <span>Fleet Management</span>
-          </div>
+        <div className="logo sidebar-fleetora-logo">
+          <FleetoraLogo width={menuOpen ? 180 : 54} height={menuOpen ? 75 : 45} />
         </div>
 
         <nav>
           <p className="menu-title">MAIN MENU</p>
 
-          {navItems.slice(0, 5).map(([name, Icon]) => (
+          {mainNavItems.map(([name, Icon]) => (
             <button
               key={name}
               className={page === name ? "nav-item active" : "nav-item"}
               onClick={() => setPage(name)}
             >
               <Icon size={19} />
-              {name}
+              {menuOpen && <span>{name}</span>}
             </button>
           ))}
 
           <p className="menu-title">MANAGEMENT</p>
 
-          {navItems.slice(5).map(([name, Icon]) => (
+          {managementNavItems.map(([name, Icon]) => (
             <button
               key={name}
               className={page === name ? "nav-item active" : "nav-item"}
               onClick={() => setPage(name)}
             >
               <Icon size={19} />
-              {name}
+              {menuOpen && <span>{name}</span>}
             </button>
           ))}
         </nav>
 
         <div className="sidebar-bottom">
-          <ShieldCheck size={20} />
-
-          <div>
-            <strong>System Secure</strong>
-            <span>All services operational</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="nav-item logout-nav-item"
+            title="Logout"
+            style={{ width: "100%", justifyContent: menuOpen ? "flex-start" : "center", color: "#f87171" }}
+          >
+            <LogOut size={19} />
+            {menuOpen && <span>Logout</span>}
+          </button>
         </div>
       </aside>
 
+      {/* MAIN CONTENT AREA */}
       <main className="main">
         <header className="topbar">
           <button
@@ -962,7 +1149,7 @@ function App() {
           </button>
 
           <div className="page-title">
-            <span>Fleet Management</span>
+            <span>FLEETORA CONSOLE</span>
             <h1>{page}</h1>
           </div>
 
@@ -970,6 +1157,7 @@ function App() {
             <button
               className="icon-button"
               onClick={() => setPage("Notifications")}
+              title="Notifications"
             >
               <Bell size={20} />
             </button>
@@ -982,14 +1170,25 @@ function App() {
               {darkMode ? "Light" : "Dark"}
             </button>
 
-            <div className="profile">
-              <div className="profile-avatar">A</div>
+            <div className="profile" onClick={() => setPage("Profile")} style={{ cursor: "pointer" }}>
+              <div className="profile-avatar">
+                {(user.fullName || user.username || "U")[0].toUpperCase()}
+              </div>
 
               <div>
-                <strong>Admin</strong>
-                <span>Fleet Manager</span>
+                <strong>{user.fullName || user.username}</strong>
+                <span style={{ textTransform: "uppercase", fontSize: "10px", opacity: 0.8 }}>{user.role}</span>
               </div>
             </div>
+
+            <button
+              className="icon-button"
+              onClick={handleLogout}
+              title="Logout from Fleetora"
+              style={{ color: "#f87171" }}
+            >
+              <LogOut size={20} />
+            </button>
           </div>
         </header>
 
@@ -1000,15 +1199,20 @@ function App() {
               right: "25px",
               top: "95px",
               zIndex: 100,
-              background: "#2563eb",
+              background: "linear-gradient(135deg, #2563eb, #00f0ff)",
               color: "white",
-              padding: "10px 16px",
+              padding: "10px 18px",
               borderRadius: "10px",
               fontSize: "12px",
-              boxShadow: "0 4px 12px rgba(37,99,235,0.3)"
+              fontWeight: 600,
+              boxShadow: "0 4px 15px rgba(0,240,255,0.4)",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px"
             }}
           >
-            Loading...
+            <Loader2 size={16} className="spinner-icon" />
+            Loading Fleetora Data...
           </div>
         )}
 
@@ -1049,8 +1253,9 @@ function App() {
         )}
 
         {page === "Dashboard" && renderDashboard()}
-
         {page === "Live Tracking" && renderTracking()}
+        {page === "User Management" && isAdmin && renderUserManagement()}
+        {page === "Profile" && renderProfile()}
 
         {page === "Settings" && (
           <section className="content">
@@ -1058,7 +1263,7 @@ function App() {
               <div>
                 <p>CONFIGURATION</p>
                 <h2>Settings</h2>
-                <span>Customize your FleetFlow experience.</span>
+                <span>Customize your FLEETORA experience.</span>
               </div>
             </div>
 
@@ -1069,8 +1274,8 @@ function App() {
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <strong>Appearance</strong>
-                  <span>Change dashboard theme.</span>
+                  <strong>Appearance Theme</strong>
+                  <span>Switch dark / light mode.</span>
                 </div>
 
                 <button
@@ -1091,7 +1296,8 @@ function App() {
             style={{
               position: "fixed",
               inset: 0,
-              background: "rgba(0,0,0,0.65)",
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(5px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1100,14 +1306,8 @@ function App() {
             }}
           >
             <motion.div
-              initial={{
-                opacity: 0,
-                scale: 0.95
-              }}
-              animate={{
-                opacity: 1,
-                scale: 1
-              }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               style={{
                 width: "100%",
                 maxWidth: "650px",
@@ -1115,8 +1315,9 @@ function App() {
                 overflowY: "auto",
                 borderRadius: "18px",
                 padding: "25px",
-                background: darkMode ? "#111827" : "#ffffff",
-                border: "1px solid rgba(148,163,184,0.2)"
+                background: darkMode ? "#0f172a" : "#ffffff",
+                border: "1px solid rgba(0,240,255,0.2)",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.6)"
               }}
             >
               <div
@@ -1155,7 +1356,7 @@ function App() {
                           display: "block",
                           fontSize: "11px",
                           marginBottom: "7px",
-                          opacity: 0.65
+                          opacity: 0.8
                         }}
                       >
                         {label}
@@ -1226,7 +1427,7 @@ function App() {
                     type="submit"
                     className="theme-button"
                     style={{
-                      background: "#2563eb",
+                      background: "linear-gradient(135deg, #2563eb, #00f0ff)",
                       color: "white"
                     }}
                   >
