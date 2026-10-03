@@ -1,5 +1,6 @@
 package com.fleetmanagement.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -94,6 +95,7 @@ public class User {
         this.email = email;
     }
 
+    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -102,6 +104,7 @@ public class User {
         this.password = password;
     }
 
+    @JsonIgnore
     public String getPasswordHash() {
         return passwordHash;
     }

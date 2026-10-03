@@ -1,5 +1,6 @@
 package com.fleetmanagement.config;
 
+import com.fleetmanagement.entity.User;
 import com.fleetmanagement.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -36,22 +38,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 String username = jwtTokenProvider.getUsernameFromToken(jwt);
-                String role = jwtTokenProvider.getRoleFromToken(jwt);
+                String tokenRole = jwtTokenProvider.getRoleFromToken(jwt);
 
-                userRepository.findByUsername(username).ifPresent(user -> {
-                    String authorityRole = role != null && !role.isEmpty() ? role : user.getRole();
-                    if (authorityRole != null && !authorityRole.startsWith("ROLE_")) {
-                        authorityRole = "ROLE_" + authorityRole.toUpperCase();
+                if (StringUtils.hasText(username)) {
+                    Optional<User> userOpt = userRepository.findByUsernameOrEmail(username, username);
+                    if (userOpt.isPresent()) {
+                        User user = userOpt.get();
+                        String role = (tokenRole != null && !tokenRole.trim().isEmpty()) ? tokenRole : user.getRole();
+                        if (role == null || role.trim().isEmpty()) {
+                            role = "USER";
+                        }
+                        String authorityRole = role.toUpperCase();
+                        if (!authorityRole.startsWith("ROLE_")) {
+                            authorityRole = "ROLE_" + authorityRole;
+                        }
+
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                user,
+                                null,
+                                Collections.singletonList(new SimpleGrantedAuthority(authorityRole))
+                        );
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
-
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            user,
-                            null,
-                            Collections.singletonList(new SimpleGrantedAuthority(authorityRole))
-                    );
-                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                });
+                }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);

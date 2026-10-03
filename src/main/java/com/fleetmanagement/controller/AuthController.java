@@ -39,38 +39,60 @@ public class AuthController {
         String password = request.get("password");
 
         if (!StringUtils.hasText(usernameOrEmail) || !StringUtils.hasText(password)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Username/Email and password are required."));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Username/Email and password are required."));
         }
 
         Optional<User> userOpt = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid username or password."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid username or password."));
         }
 
         User user = userOpt.get();
         boolean passwordMatches = false;
-        if (user.getPasswordHash() != null && passwordEncoder.matches(password, user.getPasswordHash())) {
-            passwordMatches = true;
-        } else if (password.equals(user.getPassword()) || password.equals(user.getPasswordHash())) {
-            passwordMatches = true;
-            // Upgrade legacy stored password to BCrypt
-            user.setPasswordHash(passwordEncoder.encode(password));
-            userRepository.save(user);
+
+        if (StringUtils.hasText(user.getPasswordHash())) {
+            if (user.getPasswordHash().startsWith("$2a$") || user.getPasswordHash().startsWith("$2b$") || user.getPasswordHash().startsWith("$2y$")) {
+                passwordMatches = passwordEncoder.matches(password, user.getPasswordHash());
+            } else if (password.equals(user.getPasswordHash())) {
+                passwordMatches = true;
+                user.setPasswordHash(passwordEncoder.encode(password));
+                user.setPassword(null);
+                userRepository.save(user);
+            }
+        }
+
+        if (!passwordMatches && StringUtils.hasText(user.getPassword())) {
+            if (user.getPassword().startsWith("$2a$") || user.getPassword().startsWith("$2b$") || user.getPassword().startsWith("$2y$")) {
+                passwordMatches = passwordEncoder.matches(password, user.getPassword());
+            } else if (password.equals(user.getPassword())) {
+                passwordMatches = true;
+                user.setPasswordHash(passwordEncoder.encode(password));
+                user.setPassword(null);
+                userRepository.save(user);
+            }
         }
 
         if (!passwordMatches) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid username or password."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid username or password."));
         }
 
         if (Boolean.TRUE.equals(user.getIsDeleted())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Account has been deactivated."));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("success", false, "message", "Account has been deactivated."));
         }
 
-        String role = user.getRole() != null ? user.getRole().toUpperCase() : "USER";
+        String rawRole = user.getRole();
+        if (rawRole == null || rawRole.trim().isEmpty()) {
+            rawRole = "USER";
+        }
+        String role = rawRole.toUpperCase().startsWith("ROLE_") ? rawRole.substring(5) : rawRole.toUpperCase();
+
         String token = jwtTokenProvider.generateToken(user.getUsername(), role);
 
         Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
         response.put("token", token);
+        response.put("username", user.getUsername());
+        response.put("role", role);
         response.put("user", buildUserProfile(user, role));
 
         return ResponseEntity.ok(response);
@@ -87,20 +109,22 @@ public class AuthController {
 
         if (!StringUtils.hasText(fullName) || !StringUtils.hasText(username) ||
             !StringUtils.hasText(email) || !StringUtils.hasText(password)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "All required fields must be provided."));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "All required fields must be provided."));
         }
 
         if (confirmPassword != null && !password.equals(confirmPassword)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Passwords do not match."));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Passwords do not match."));
         }
 
         if (userRepository.existsByUsername(username)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Username is already taken."));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Username is already taken."));
         }
 
         if (userRepository.existsByEmail(email)) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email is already registered."));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Email is already registered."));
         }
+
+        String encodedPassword = passwordEncoder.encode(password);
 
         User newUser = new User();
         newUser.setFullName(fullName);
@@ -108,8 +132,8 @@ public class AuthController {
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPhone(phone);
-        newUser.setPassword(password);
-        newUser.setPasswordHash(passwordEncoder.encode(password));
+        newUser.setPassword(null);
+        newUser.setPasswordHash(encodedPassword);
         newUser.setRole("USER"); // Registration ALWAYS creates USER accounts
         newUser.setStatus("ACTIVE");
         newUser.setIsDeleted(false);
@@ -122,7 +146,10 @@ public class AuthController {
         String token = jwtTokenProvider.generateToken(savedUser.getUsername(), "USER");
 
         Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
         response.put("token", token);
+        response.put("username", savedUser.getUsername());
+        response.put("role", "USER");
         response.put("user", buildUserProfile(savedUser, "USER"));
         response.put("message", "Account created successfully!");
 
@@ -132,25 +159,30 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "No token provided."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "No token provided."));
         }
 
         String token = authHeader.substring(7);
         if (!jwtTokenProvider.validateToken(token)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "Invalid or expired token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid or expired token."));
         }
 
         String username = jwtTokenProvider.getUsernameFromToken(token);
-        Optional<User> userOpt = userRepository.findByUsername(username);
+        Optional<User> userOpt = userRepository.findByUsernameOrEmail(username, username);
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "User not found."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "User not found."));
         }
 
         User user = userOpt.get();
-        String role = user.getRole() != null ? user.getRole().toUpperCase() : "USER";
+        String rawRole = user.getRole();
+        if (rawRole == null || rawRole.trim().isEmpty()) {
+            rawRole = "USER";
+        }
+        String role = rawRole.toUpperCase().startsWith("ROLE_") ? rawRole.substring(5) : rawRole.toUpperCase();
 
         Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
         response.put("user", buildUserProfile(user, role));
         return ResponseEntity.ok(response);
     }
