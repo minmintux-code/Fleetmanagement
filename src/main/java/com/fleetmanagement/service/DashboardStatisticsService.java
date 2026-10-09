@@ -1,6 +1,6 @@
 package com.fleetmanagement.service;
 
-import com.fleetmanagement.entity.DashboardStatistics;
+import com.fleetmanagement.entity.*;
 import com.fleetmanagement.repository.*;
 import org.springframework.stereotype.Service;
 
