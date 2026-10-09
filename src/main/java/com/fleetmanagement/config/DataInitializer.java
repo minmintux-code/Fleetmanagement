@@ -26,16 +26,16 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        Optional<User> adminOpt = userRepository.findByUsername("admin");
+        Optional<User> adminOpt = userRepository.findByUsername("fleetora");
         if (adminOpt.isEmpty()) {
             log.info("Admin account not found. Creating predefined admin user...");
             User admin = new User();
-            admin.setUsername("admin");
+            admin.setUsername("fleetora");
             admin.setFullName("System Administrator");
             admin.setName("System Administrator");
             admin.setEmail("admin@fleetora.com");
-            admin.setPassword("Admin@123");
-            admin.setPasswordHash(passwordEncoder.encode("Admin@123"));
+            admin.setPassword(null);
+            admin.setPasswordHash(passwordEncoder.encode("fleetora@123"));
             admin.setRole("ADMIN");
             admin.setStatus("ACTIVE");
             admin.setDepartment("Fleet Operations");
@@ -50,16 +50,14 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Predefined admin user created successfully.");
         } else {
             User admin = adminOpt.get();
-            // Ensure password hash is encoded using BCrypt if plain text or outdated
-            if (admin.getPasswordHash() == null || !admin.getPasswordHash().startsWith("$2a$")) {
-                admin.setPasswordHash(passwordEncoder.encode("Admin@123"));
-                admin.setPassword("Admin@123");
-                admin.setRole("ADMIN");
-                admin.setUpdatedAt(LocalDateTime.now());
-                admin.setUpdatedBy("SYSTEM");
-                userRepository.save(admin);
-                log.info("Updated existing admin user password hash with BCrypt.");
-            }
+            // Force reset password to fleetora@123 to ensure it works for the user
+            admin.setPasswordHash(passwordEncoder.encode("fleetora@123"));
+            admin.setPassword(null);
+            admin.setRole("ADMIN");
+            admin.setUpdatedAt(LocalDateTime.now());
+            admin.setUpdatedBy("SYSTEM");
+            userRepository.save(admin);
+            log.info("Forced update of existing admin user password hash to fleetora@123.");
         }
     }
 }

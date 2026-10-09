@@ -12,14 +12,26 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
+import jakarta.annotation.PostConstruct;
+
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:FleetoraSecretKeyForJWTSecuritySigningAuthorizationToken2026!}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
     @Value("${app.jwt.expiration-ms:86400000}")
     private long jwtExpirationMs;
+
+    @PostConstruct
+    public void init() {
+        if (jwtSecret == null || jwtSecret.trim().isEmpty()) {
+            throw new IllegalArgumentException("JWT secret (app.jwt.secret) is missing or empty.");
+        }
+        if (jwtSecret.length() < 32) {
+            throw new IllegalArgumentException("JWT secret (app.jwt.secret) is too weak. Must be at least 32 characters.");
+        }
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
@@ -64,19 +76,10 @@ public class JwtTokenProvider {
     }
 
     public boolean validateToken(String token) {
-
-        try {
-
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
-
-            return true;
-
-        } catch (Exception e) {
-
-            return false;
-        }
+        Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token);
+        return true;
     }
 }

@@ -121,11 +121,32 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**")
                         .permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/**")
+                        .hasAnyRole("ADMIN", "USER")
+
                         .requestMatchers("/api/**")
-                        .authenticated()
+                        .hasRole("ADMIN")
 
                         .anyRequest()
-                        .permitAll()
+                        .authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            String jwtError = (String) request.getAttribute("jwtError");
+                            String code = jwtError != null ? jwtError : "AUTH_REQUIRED";
+                            String message = jwtError != null ? "Invalid or expired token" : "Authentication required";
+                            
+                            response.setContentType("application/json");
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write(String.format("{\"timestamp\":\"%s\",\"status\":401,\"code\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
+                                    java.time.LocalDateTime.now().toString(), code, message, request.getRequestURI()));
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write(String.format("{\"timestamp\":\"%s\",\"status\":403,\"code\":\"FORBIDDEN\",\"message\":\"Insufficient role\",\"path\":\"%s\"}",
+                                    java.time.LocalDateTime.now().toString(), request.getRequestURI()));
+                        })
                 )
 
                 .authenticationProvider(authenticationProvider())

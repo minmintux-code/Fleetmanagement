@@ -63,8 +63,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                 }
             }
+        } catch (io.jsonwebtoken.ExpiredJwtException ex) {
+            request.setAttribute("jwtError", "TOKEN_EXPIRED");
+            logger.debug("JWT token is expired", ex);
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
+            request.setAttribute("jwtError", "TOKEN_INVALID");
+            logger.debug("Could not set user authentication in security context", ex);
         }
 
         filterChain.doFilter(request, response);
