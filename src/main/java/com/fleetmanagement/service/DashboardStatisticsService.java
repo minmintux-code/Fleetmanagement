@@ -1,13 +1,18 @@
 package com.fleetmanagement.service;
-
-import com.fleetmanagement.entity.*;
-import com.fleetmanagement.repository.*;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.fleetmanagement.entity.DashboardStatistics;
+import com.fleetmanagement.repository.DashboardStatisticsRepository;
+import com.fleetmanagement.repository.DriverRepository;
+import com.fleetmanagement.repository.FuelRepository;
+import com.fleetmanagement.repository.MaintenanceRepository;
+import com.fleetmanagement.repository.TripRepository;
+import com.fleetmanagement.repository.VehicleRepository;
 
 @Service
 public class DashboardStatisticsService {
