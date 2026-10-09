@@ -31,7 +31,8 @@ import {
   Loader2
 } from "lucide-react";
 import FleetoraLogo from "./assets/FleetoraLogo";
-import AuthPage from "./components/AuthPage";
+import AuthPage from "./components/AuthPageNew";
+import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import "./App.css";
 
 const API = "http://localhost:8080/api";
@@ -71,12 +72,26 @@ function App() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem("fleetora_token");
     localStorage.removeItem("fleetora_user");
+    localStorage.removeItem("fleetora_role");
     delete axios.defaults.headers.common["Authorization"];
     setToken(null);
     setUser(null);
     setPage("Dashboard");
     window.history.pushState(null, "", "/");
   }, []);
+
+  useEffect(() => {
+    const handlePageShow = (e) => {
+      if (e.persisted || !localStorage.getItem("fleetora_token")) {
+        const storedToken = localStorage.getItem("fleetora_token");
+        if (!storedToken) {
+           handleLogout();
+        }
+      }
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [handleLogout]);
 
   // Setup Axios Authorization Header & 401 Interceptor
   useEffect(() => {
@@ -92,7 +107,10 @@ function App() {
       (response) => response,
       (err) => {
         if (err.response && err.response.status === 401) {
-          handleLogout();
+          const url = err.config.url;
+          if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+            handleLogout();
+          }
         }
         return Promise.reject(err);
       }
@@ -249,13 +267,12 @@ function App() {
         ["longitude", "Longitude"]
       ],
       columns: [
-        ["plateNumber", "Plate"],
+        ["plateNumber", "Vehicle Number"],
         ["make", "Make"],
         ["model", "Model"],
-        ["year", "Year"],
-        ["fuelType", "Fuel"],
-        ["status", "Status"],
-        ["location", "Location"]
+        ["fuelType", "Fuel Type"],
+        ["currentFuelLevel", "Current Fuel Level"],
+        ["status", "Status"]
       ]
     },
 
@@ -275,11 +292,11 @@ function App() {
         ["safetyScore", "Safety Score"]
       ],
       columns: [
-        ["firstName", "First Name"],
-        ["lastName", "Last Name"],
+        ["firstName", "Driver Name"],
         ["phone", "Phone"],
         ["email", "Email"],
-        ["licenseNumber", "License"],
+        ["licenseNumber", "License Number"],
+        ["licenseExpiryDate", "License Expiry"],
         ["status", "Status"]
       ]
     },
@@ -303,7 +320,8 @@ function App() {
         ["tripCode", "Trip Code"],
         ["origin", "Origin"],
         ["destination", "Destination"],
-        ["distanceKm", "Distance"],
+        ["scheduledDeparture", "Scheduled Departure"],
+        ["scheduledArrival", "Scheduled Arrival"],
         ["status", "Status"]
       ]
     },
@@ -323,12 +341,12 @@ function App() {
         ["odometerReading", "Odometer Reading"]
       ],
       columns: [
-        ["type", "Type"],
+        ["type", "Maintenance Type"],
+        ["scheduledDate", "Scheduled Date"],
+        ["priority", "Priority"],
         ["serviceCenter", "Service Center"],
-        ["scheduledDate", "Date"],
         ["estimatedCostInr", "Estimated Cost"],
-        ["status", "Status"],
-        ["priority", "Priority"]
+        ["status", "Status"]
       ]
     },
 
@@ -346,11 +364,12 @@ function App() {
         ["notes", "Notes"]
       ],
       columns: [
-        ["stationName", "Station"],
-        ["fuelDate", "Date"],
-        ["liters", "Liters"],
-        ["costPerLiterInr", "Cost/Liter"],
-        ["totalCostInr", "Total Cost"]
+        ["fuelDate", "Fuel Date"],
+        ["liters", "Litres"],
+        ["costPerLiterInr", "Cost per Litre"],
+        ["totalCostInr", "Total Cost"],
+        ["odometerReading", "Odometer Reading"],
+        ["stationName", "Station"]
       ]
     },
 
@@ -621,137 +640,18 @@ function App() {
   };
 
   const renderDashboard = () => (
-    <div className="dashboard">
-      <div className="welcome">
-        <div>
-          <p>SYSTEM DASHBOARD</p>
-          <h2>Welcome back, {user?.fullName || user?.username || "Manager"}</h2>
-          <span>
-            Logged in as <strong>{user?.role || "USER"}</strong>. Here is your fleet summary.
-          </span>
-        </div>
-
-        <button className="theme-button" onClick={loadData}>
-          <RefreshCw size={17} /> Refresh
-        </button>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <p>Total Vehicles</p>
-          <h3>{stats?.totalVehicles ?? vehicles.length}</h3>
-          <span>Active fleet assets</span>
-        </div>
-
-        <div className="stat-card">
-          <p>Active Vehicles</p>
-          <h3>{stats?.activeVehicles ?? vehicles.filter((v) => v.status === "ACTIVE").length}</h3>
-          <span>Operational on road</span>
-        </div>
-
-        <div className="stat-card">
-          <p>Total Drivers</p>
-          <h3>{stats?.totalDrivers ?? drivers.length}</h3>
-          <span>Verified personnel</span>
-        </div>
-
-        <div className="stat-card">
-          <p>Active Trips</p>
-          <h3>{stats?.activeTrips ?? trips.filter((t) => t.status === "IN_PROGRESS").length}</h3>
-          <span>En-route dispatch</span>
-        </div>
-      </div>
-
-      <div className="grid-2">
-        <div className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-label">FLEET STATUS</p>
-              <h2>Recent Vehicles</h2>
-            </div>
-            {isAdmin && (
-              <button className="add-button" onClick={() => setPage("Vehicles")}>
-                View All
-              </button>
-            )}
-          </div>
-
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Plate</th>
-                <th>Make/Model</th>
-                <th>Status</th>
-                <th>Location</th>
-              </tr>
-            </thead>
-            <tbody>
-              {vehicles.slice(0, 5).map((item) => (
-                <tr key={item.id}>
-                  <td><strong>{item.plateNumber}</strong></td>
-                  <td>{item.make} {item.model}</td>
-                  <td>
-                    <span className={`badge ${item.status === "ACTIVE" ? "badge-success" : "badge-warning"}`}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td>{item.location || "Base Yard"}</td>
-                </tr>
-              ))}
-              {vehicles.length === 0 && (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: "center", opacity: 0.6 }}>
-                    No vehicle data loaded.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="panel">
-          <div className="panel-header">
-            <div>
-              <p className="panel-label">OPERATIONS</p>
-              <h2>Recent Trips</h2>
-            </div>
-            <button className="add-button" onClick={() => setPage("Trips")}>
-              View All
-            </button>
-          </div>
-
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Trip Code</th>
-                <th>Origin</th>
-                <th>Destination</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {trips.slice(0, 5).map((item) => (
-                <tr key={item.id}>
-                  <td><strong>{item.tripCode}</strong></td>
-                  <td>{item.origin}</td>
-                  <td>{item.destination}</td>
-                  <td>
-                    <span className="badge badge-info">{item.status}</span>
-                  </td>
-                </tr>
-              ))}
-              {trips.length === 0 && (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: "center", opacity: 0.6 }}>
-                    No trip records available.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <AnalyticsDashboard
+      user={user}
+      isAdmin={isAdmin}
+      loadData={loadData}
+      vehicles={vehicles}
+      drivers={drivers}
+      trips={trips}
+      usersList={usersList}
+      fuel={fuel}
+      maintenance={maintenance}
+      stats={stats}
+    />
   );
 
   const renderTracking = () => (
@@ -982,9 +882,10 @@ function App() {
         </div>
 
         <div className="panel">
-          <table className="table">
-            <thead>
-              <tr>
+          <div className="table-responsive">
+            <table className="table">
+              <thead>
+                <tr>
                 {config.columns.map(([key, label]) => (
                   <th key={key}>{label}</th>
                 ))}
@@ -1011,7 +912,7 @@ function App() {
                     <td>
                       <div style={{ display: "flex", gap: "8px" }}>
                         <button
-                          className="icon-button"
+                          className="icon-button-edit"
                           onClick={() => openEditForm(item)}
                           title="Edit"
                         >
@@ -1019,7 +920,7 @@ function App() {
                         </button>
 
                         <button
-                          className="icon-button"
+                          className="icon-button-delete"
                           onClick={() => deleteItem(item.id)}
                           title="Delete"
                         >
@@ -1033,13 +934,14 @@ function App() {
 
               {config.data.length === 0 && (
                 <tr>
-                  <td colSpan={config.columns.length + (isAdmin ? 1 : 0)} style={{ textAlign: "center", opacity: 0.6 }}>
+                  <td colSpan={config.columns.length + (isAdmin ? 1 : 0)} className="empty-state">
                     No records found for {page}.
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </section>
     );

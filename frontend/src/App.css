@@ -984,3 +984,72 @@ textarea:focus {
     transition: none !important;
   }
 }
+/* NEW PREMIUM TABLE STYLES */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  table-layout: auto;
+}
+
+.table th,
+.table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+  white-space: nowrap;
+}
+
+.table th {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(241, 245, 249, 0.5);
+}
+
+.dark .table th {
+  background: rgba(30, 41, 59, 0.5);
+  color: #94a3b8;
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+
+.table td {
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.dark .table td {
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+}
+
+.table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.dark .table tbody tr:hover {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+/* Ensure empty states match */
+.table .empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #64748b;
+}
+
+.dark .table .empty-state {
+  color: #94a3b8;
+}
+
