@@ -218,6 +218,36 @@
   gap: 8px;
   font-size: 0.85rem;
   font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s;
+}
+
+.auth-alert:hover {
+  opacity: 0.92;
+}
+
+.alert-text {
+  flex: 1;
+}
+
+.alert-close-btn {
+  background: transparent;
+  border: none;
+  color: currentColor;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.alert-close-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .auth-alert.error {
@@ -231,3 +261,4 @@
   color: #22c55e;
   border: 1px solid #bbf7d0;
 }
+

@@ -2,11 +2,10 @@ import { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
-  User, Lock, Mail, Phone, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2
+  User, Lock, Mail, Phone, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, X
 } from "lucide-react";
 import "./AuthPage.css";
-
-const API = "http://localhost:8080/api";
+import { API_URL as API } from "../apiConfig";
 
 export default function AuthPageNew({ onAuthSuccess }) {
   const prefersReducedMotion = useReducedMotion();
@@ -29,6 +28,11 @@ export default function AuthPageNew({ onAuthSuccess }) {
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
+
+  const clearMessages = () => {
+    if (error) setError("");
+    if (success) setSuccess("");
+  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -128,7 +132,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
           <button 
              type="button"
              className={`toggle-btn ${activeTab === "login" ? "active" : ""}`}
-             onClick={() => { setActiveTab("login"); setError(""); setSuccess(""); }}
+             onClick={() => { setActiveTab("login"); clearMessages(); }}
           >
             LOGIN
             {activeTab === "login" && (
@@ -138,7 +142,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
           <button 
              type="button"
              className={`toggle-btn ${activeTab === "register" ? "active" : ""}`}
-             onClick={() => { setActiveTab("register"); setError(""); setSuccess(""); }}
+             onClick={() => { setActiveTab("register"); clearMessages(); }}
           >
             SIGN UP
             {activeTab === "register" && (
@@ -148,13 +152,29 @@ export default function AuthPageNew({ onAuthSuccess }) {
         </div>
 
         {error && (
-          <div className="auth-alert error" aria-live="assertive">
-            <AlertCircle size={16} /> <span>{error}</span>
+          <div className="auth-alert error" aria-live="assertive" onClick={clearMessages} title="Click to dismiss">
+            <AlertCircle size={16} /> <span className="alert-text">{error}</span>
+            <button 
+              type="button" 
+              className="alert-close-btn" 
+              onClick={(e) => { e.stopPropagation(); setError(""); }}
+              aria-label="Clear error"
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
         {success && (
-          <div className="auth-alert success" aria-live="polite">
-            <CheckCircle2 size={16} /> <span>{success}</span>
+          <div className="auth-alert success" aria-live="polite" onClick={clearMessages} title="Click to dismiss">
+            <CheckCircle2 size={16} /> <span className="alert-text">{success}</span>
+            <button 
+              type="button" 
+              className="alert-close-btn" 
+              onClick={(e) => { e.stopPropagation(); setSuccess(""); }}
+              aria-label="Clear notification"
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
 
@@ -177,7 +197,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
                     type="text"
                     placeholder="Email or Username"
                     value={loginUsername}
-                    onChange={(e) => setLoginUsername(e.target.value)}
+                    onChange={(e) => { setLoginUsername(e.target.value); clearMessages(); }}
                     required
                     disabled={loading}
                   />
@@ -190,7 +210,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
                     type={showLoginPassword ? "text" : "password"}
                     placeholder="Password"
                     value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
+                    onChange={(e) => { setLoginPassword(e.target.value); clearMessages(); }}
                     required
                     disabled={loading}
                   />
@@ -204,7 +224,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
               </button>
               <div className="auth-links">
                 <button type="button" className="text-link" onClick={() => alert("Please contact your administrator to reset your password.")}>Forgot Password?</button>
-                <button type="button" className="text-link" onClick={() => { setActiveTab("register"); setError(""); }}>Don't have an account? Sign up now</button>
+                <button type="button" className="text-link" onClick={() => { setActiveTab("register"); clearMessages(); }}>Don't have an account? Sign up now</button>
               </div>
             </motion.form>
           ) : (
@@ -221,31 +241,31 @@ export default function AuthPageNew({ onAuthSuccess }) {
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <User size={18} />
-                  <input type="text" placeholder="Full Name" value={regFullName} onChange={(e) => setRegFullName(e.target.value)} required disabled={loading} />
+                  <input type="text" placeholder="Full Name" value={regFullName} onChange={(e) => { setRegFullName(e.target.value); clearMessages(); }} required disabled={loading} />
                 </div>
               </div>
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <User size={18} />
-                  <input type="text" placeholder="Username" value={regUsername} onChange={(e) => setRegUsername(e.target.value)} required disabled={loading} />
+                  <input type="text" placeholder="Username" value={regUsername} onChange={(e) => { setRegUsername(e.target.value); clearMessages(); }} required disabled={loading} />
                 </div>
               </div>
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <Mail size={18} />
-                  <input type="email" placeholder="Email Address" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} required disabled={loading} />
+                  <input type="email" placeholder="Email Address" value={regEmail} onChange={(e) => { setRegEmail(e.target.value); clearMessages(); }} required disabled={loading} />
                 </div>
               </div>
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <Phone size={18} />
-                  <input type="tel" placeholder="Phone Number" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} disabled={loading} />
+                  <input type="tel" placeholder="Phone Number" value={regPhone} onChange={(e) => { setRegPhone(e.target.value); clearMessages(); }} disabled={loading} />
                 </div>
               </div>
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <Lock size={18} />
-                  <input type={showRegPassword ? "text" : "password"} placeholder="Password" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} required disabled={loading} />
+                  <input type={showRegPassword ? "text" : "password"} placeholder="Password" value={regPassword} onChange={(e) => { setRegPassword(e.target.value); clearMessages(); }} required disabled={loading} />
                   <button type="button" className="show-hide-btn" onClick={() => setShowRegPassword(!showRegPassword)} tabIndex="-1">
                     {showRegPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -254,7 +274,7 @@ export default function AuthPageNew({ onAuthSuccess }) {
               <div className="form-group">
                 <div className="input-icon-wrapper">
                   <Lock size={18} />
-                  <input type={showRegConfirmPassword ? "text" : "password"} placeholder="Confirm Password" value={regConfirmPassword} onChange={(e) => setRegConfirmPassword(e.target.value)} required disabled={loading} />
+                  <input type={showRegConfirmPassword ? "text" : "password"} placeholder="Confirm Password" value={regConfirmPassword} onChange={(e) => { setRegConfirmPassword(e.target.value); clearMessages(); }} required disabled={loading} />
                   <button type="button" className="show-hide-btn" onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)} tabIndex="-1">
                     {showRegConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -270,3 +290,4 @@ export default function AuthPageNew({ onAuthSuccess }) {
     </div>
   );
 }
+

@@ -1,6 +1,9 @@
 package com.fleetmanagement.service;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,37 +43,50 @@ public class DashboardStatisticsService {
     }
 
     public List<DashboardStatistics> findAll() {
-        List<DashboardStatistics> stats = dashboardStatisticsRepository.findAll();
-        if (stats.isEmpty()) {
-            DashboardStatistics computed = computeLiveStats();
-            return List.of(computed);
-        }
-        return stats;
+        DashboardStatistics computed = computeLiveStats();
+        return List.of(computed);
     }
 
     public DashboardStatistics computeLiveStats() {
-        var vehicles = vehicleRepository.findAll();
-        var drivers = driverRepository.findAll();
-        var trips = tripRepository.findAll();
-        var maintenanceList = maintenanceRepository.findAll();
-        var fuelList = fuelRepository.findAll();
+        var vehicles = vehicleRepository.findByIsDeletedFalse();
+        var drivers = driverRepository.findByIsDeletedFalse();
+        var trips = tripRepository.findByIsDeletedFalse();
+        var maintenanceList = maintenanceRepository.findByIsDeletedFalse();
+        var fuelList = fuelRepository.findByIsDeletedFalse();
 
         int totalVehicles = vehicles.size();
-        int activeVehicles = (int) vehicles.stream().filter(v -> "ACTIVE".equalsIgnoreCase(v.getStatus())).count();
-        int maintenanceVehicles = (int) vehicles.stream().filter(v -> "MAINTENANCE".equalsIgnoreCase(v.getStatus()) || "IN_MAINTENANCE".equalsIgnoreCase(v.getStatus())).count();
+        int activeVehicles = (int) vehicles.stream()
+                .filter(v -> "ACTIVE".equalsIgnoreCase(v.getStatus()))
+                .count();
+        int maintenanceVehicles = (int) vehicles.stream()
+                .filter(v -> "MAINTENANCE".equalsIgnoreCase(v.getStatus()) || "IN_MAINTENANCE".equalsIgnoreCase(v.getStatus()))
+                .count();
 
         int totalDrivers = drivers.size();
-        int activeDrivers = (int) drivers.stream().filter(d -> "ACTIVE".equalsIgnoreCase(d.getStatus())).count();
+        int activeDrivers = (int) drivers.stream()
+                .filter(d -> "ACTIVE".equalsIgnoreCase(d.getStatus()) || "AVAILABLE".equalsIgnoreCase(d.getStatus()))
+                .count();
 
-        int ongoingTrips = (int) trips.stream().filter(t -> "ONGOING".equalsIgnoreCase(t.getStatus()) || "ACTIVE".equalsIgnoreCase(t.getStatus()) || "IN_TRANSIT".equalsIgnoreCase(t.getStatus())).count();
-        int completedTripsMonth = (int) trips.stream().filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus())).count();
+        int ongoingTrips = (int) trips.stream()
+                .filter(t -> "ONGOING".equalsIgnoreCase(t.getStatus()) || "ACTIVE".equalsIgnoreCase(t.getStatus()) || "IN_TRANSIT".equalsIgnoreCase(t.getStatus()) || "IN_PROGRESS".equalsIgnoreCase(t.getStatus()))
+                .count();
+
+        YearMonth currentMonth = YearMonth.now();
+        int completedTripsMonth = (int) trips.stream()
+                .filter(t -> "COMPLETED".equalsIgnoreCase(t.getStatus()))
+                .filter(t -> {
+                    LocalDateTime arrival = t.getActualArrival() != null ? t.getActualArrival()
+                            : (t.getScheduledArrival() != null ? t.getScheduledArrival() : t.getCreatedAt());
+                    return arrival != null && arrival.getYear() == currentMonth.getYear() && arrival.getMonth() == currentMonth.getMonth();
+                })
+                .count();
 
         BigDecimal totalFuelCost = fuelList.stream()
-                .map(f -> f.getTotalCostInr() != null ? f.getTotalCostInr() : BigDecimal.ZERO)
+                .map(f -> f.getTotalCostInr() != null ? f.getTotalCostInr() : (f.getCost() != null ? f.getCost() : BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalMaintenanceCost = maintenanceList.stream()
-                .map(m -> m.getEstimatedCostInr() != null ? m.getEstimatedCostInr() : BigDecimal.ZERO)
+                .map(m -> m.getEstimatedCostInr() != null ? m.getEstimatedCostInr() : (m.getCost() != null ? m.getCost() : BigDecimal.ZERO))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         double utilizationRate = totalVehicles > 0 ? ((double) activeVehicles / totalVehicles) * 100.0 : 0.0;
@@ -86,14 +102,14 @@ public class DashboardStatisticsService {
         stat.setCompletedTripsMonth(completedTripsMonth);
         stat.setTotalFuelCostInr(totalFuelCost);
         stat.setTotalMaintenanceCostInr(totalMaintenanceCost);
-        stat.setTotalRevenueInr(BigDecimal.valueOf(50000.0));
+        stat.setTotalRevenueInr(BigDecimal.ZERO);
         stat.setFleetUtilizationRate(utilizationRate);
 
         return stat;
     }
 
     public Optional<DashboardStatistics> findById(Long id) {
-        return dashboardStatisticsRepository.findById(id);
+        return Optional.of(computeLiveStats());
     }
 
     public DashboardStatistics save(DashboardStatistics dashboardStatistics) {
@@ -101,6 +117,9 @@ public class DashboardStatisticsService {
     }
 
     public void deleteById(Long id) {
-        dashboardStatisticsRepository.deleteById(id);
+        dashboardStatisticsRepository.findById(id).ifPresent(stat -> {
+            stat.setIsDeleted(true);
+            dashboardStatisticsRepository.save(stat);
+        });
     }
 }

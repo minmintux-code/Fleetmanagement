@@ -1,11 +1,13 @@
 package com.fleetmanagement.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -23,9 +25,11 @@ public class User {
     @Column(length = 100)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(length = 255)
     private String password;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
@@ -71,6 +75,36 @@ public class User {
     public User() {
     }
 
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt == null) createdAt = now;
+        if (updatedAt == null) updatedAt = now;
+        if (createdBy == null || createdBy.isBlank()) createdBy = "ADMIN";
+        if (updatedBy == null || updatedBy.isBlank()) updatedBy = "ADMIN";
+        if (isDeleted == null) isDeleted = false;
+        if (status == null || status.isBlank()) status = "ACTIVE";
+        if (role == null || role.isBlank()) role = "USER";
+        if (fullName == null || fullName.isBlank()) {
+            fullName = name != null && !name.isBlank() ? name : username;
+        }
+        if (name == null || name.isBlank()) {
+            name = fullName;
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+        if (updatedBy == null || updatedBy.isBlank()) updatedBy = "ADMIN";
+        if (fullName == null || fullName.isBlank()) {
+            fullName = name != null && !name.isBlank() ? name : username;
+        }
+        if (name == null || name.isBlank()) {
+            name = fullName;
+        }
+    }
+
     public Integer getId() {
         return id;
     }
@@ -95,7 +129,6 @@ public class User {
         this.email = email;
     }
 
-    @JsonIgnore
     public String getPassword() {
         return password;
     }
@@ -104,7 +137,6 @@ public class User {
         this.password = password;
     }
 
-    @JsonIgnore
     public String getPasswordHash() {
         return passwordHash;
     }

@@ -17,18 +17,40 @@ public class FuelService {
     }
 
     public List<Fuel> findAll() {
-        return fuelRepository.findAll();
+        return fuelRepository.findByIsDeletedFalse();
     }
 
     public Optional<Fuel> findById(Long id) {
-        return fuelRepository.findById(id);
+        return fuelRepository.findById(id).filter(f -> !Boolean.TRUE.equals(f.getIsDeleted()));
     }
 
     public Fuel save(Fuel fuel) {
+        if (fuel.getId() != null) {
+            fuelRepository.findById(fuel.getId()).ifPresent(existing -> {
+                if (fuel.getCreatedAt() == null) {
+                    fuel.setCreatedAt(existing.getCreatedAt());
+                }
+                if (fuel.getCreatedBy() == null || fuel.getCreatedBy().isBlank()) {
+                    fuel.setCreatedBy(existing.getCreatedBy());
+                }
+                if (fuel.getIsDeleted() == null) {
+                    fuel.setIsDeleted(existing.getIsDeleted());
+                }
+                if (fuel.getVehicleId() == null) {
+                    fuel.setVehicleId(existing.getVehicleId());
+                }
+                if (fuel.getDriverId() == null) {
+                    fuel.setDriverId(existing.getDriverId());
+                }
+            });
+        }
         return fuelRepository.save(fuel);
     }
 
     public void deleteById(Long id) {
-        fuelRepository.deleteById(id);
+        fuelRepository.findById(id).ifPresent(fuel -> {
+            fuel.setIsDeleted(true);
+            fuelRepository.save(fuel);
+        });
     }
 }

@@ -34,8 +34,7 @@ import FleetoraLogo from "./assets/FleetoraLogo";
 import AuthPage from "./components/AuthPageNew";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import "./App.css";
-
-const API = "http://localhost:8080/api";
+import { API_URL as API } from "./apiConfig";
 
 function App() {
   // Authentication State
@@ -764,7 +763,7 @@ function App() {
                     >
                       {usr.status === "ACTIVE" ? <UserX size={16} color="#ef4444" /> : <UserCheck size={16} color="#10b981" />}
                     </button>
-                    {usr.username !== "admin" && (
+                    {!["admin", "fleetora"].includes((usr.username || "").toLowerCase()) && (
                       <button
                         className="icon-button"
                         title="Delete User"

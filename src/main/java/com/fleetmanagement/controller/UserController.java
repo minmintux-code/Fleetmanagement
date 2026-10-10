@@ -52,11 +52,15 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-        if (userService.findById(id).isPresent()) {
-            userService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        return userService.findById(id)
+                .map(user -> {
+                    if ("fleetora".equalsIgnoreCase(user.getUsername()) || "admin".equalsIgnoreCase(user.getUsername())) {
+                        return ResponseEntity.badRequest().body(java.util.Map.of("message", "Primary administrator account cannot be deleted."));
+                    }
+                    userService.deleteById(id);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

@@ -1,7 +1,10 @@
 package com.fleetmanagement.config;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,6 +34,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserRepository userRepository;
 
+    @Value("${app.cors.allowed-origins:http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174,https://*}")
+    private String corsAllowedOrigins;
+
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             UserRepository userRepository) {
@@ -52,7 +58,7 @@ public class SecurityConfig {
             User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail)
                     .orElseThrow(() ->
                             new UsernameNotFoundException(
-                                    "User not found: " + usernameOrEmail));
+                                     "User not found: " + usernameOrEmail));
 
             String rawRole = user.getRole();
             if (rawRole == null || rawRole.trim().isEmpty()) {
@@ -121,8 +127,14 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**")
                         .permitAll()
 
+                        .requestMatchers("/api/health", "/health")
+                        .permitAll()
+
                         .requestMatchers("/error")
                         .permitAll()
+
+                        .requestMatchers("/api/users/**")
+                        .hasRole("ADMIN")
 
                         .requestMatchers(HttpMethod.GET, "/api/**")
                         .hasAnyRole("ADMIN", "USER")
@@ -130,8 +142,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/**")
                         .hasRole("ADMIN")
 
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/*.png", "/*.svg", "/*.ico", "/*.json", "/*.js", "/*.css")
+                        .permitAll()
+
                         .anyRequest()
-                        .authenticated()
+                        .permitAll()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
@@ -167,11 +182,12 @@ public class SecurityConfig {
         CorsConfiguration configuration =
                 new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(
-                List.of("http://localhost:5174",
-                        "http://localhost:5173",
-                        "http://127.0.0.1:5174",
-                        "http://127.0.0.1:5173"));
+        List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+
+        configuration.setAllowedOriginPatterns(origins);
 
         configuration.setAllowedMethods(
                 List.of(

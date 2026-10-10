@@ -18,15 +18,28 @@ public class VehicleTypeService {
     }
 
     public List<VehicleType> findAll() {
-        return vehicleTypeRepository.findAll();
+        return vehicleTypeRepository.findByIsDeletedFalse();
     }
 
     public Optional<VehicleType> findById(Long id) {
-        return vehicleTypeRepository.findById(id);
+        return vehicleTypeRepository.findById(id).filter(vt -> !Boolean.TRUE.equals(vt.getIsDeleted()));
     }
 
     public VehicleType save(VehicleType vehicleType) {
         LocalDateTime now = LocalDateTime.now();
+        if (vehicleType.getId() != null) {
+            vehicleTypeRepository.findById(vehicleType.getId()).ifPresent(existing -> {
+                if (vehicleType.getCreatedAt() == null) {
+                    vehicleType.setCreatedAt(existing.getCreatedAt());
+                }
+                if (vehicleType.getCreatedBy() == null || vehicleType.getCreatedBy().isBlank()) {
+                    vehicleType.setCreatedBy(existing.getCreatedBy());
+                }
+                if (vehicleType.getIsDeleted() == null) {
+                    vehicleType.setIsDeleted(existing.getIsDeleted());
+                }
+            });
+        }
         if (vehicleType.getCreatedAt() == null) vehicleType.setCreatedAt(now);
         vehicleType.setUpdatedAt(now);
         if (vehicleType.getCreatedBy() == null || vehicleType.getCreatedBy().isBlank()) vehicleType.setCreatedBy("ADMIN");
@@ -39,6 +52,9 @@ public class VehicleTypeService {
     }
 
     public void deleteById(Long id) {
-        vehicleTypeRepository.deleteById(id);
+        vehicleTypeRepository.findById(id).ifPresent(vt -> {
+            vt.setIsDeleted(true);
+            vehicleTypeRepository.save(vt);
+        });
     }
 }

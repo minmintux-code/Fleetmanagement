@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    java.util.List<Notification> findByIsDeletedFalse();
 }

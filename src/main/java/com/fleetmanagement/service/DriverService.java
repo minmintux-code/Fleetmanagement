@@ -17,18 +17,35 @@ public class DriverService {
     }
 
     public List<Driver> findAll() {
-        return driverRepository.findAll();
+        return driverRepository.findByIsDeletedFalse();
     }
 
     public Optional<Driver> findById(Integer id) {
-        return driverRepository.findById(id);
+        return driverRepository.findById(id).filter(d -> !Boolean.TRUE.equals(d.getIsDeleted()));
     }
 
     public Driver save(Driver driver) {
+        if (driver.getId() != null) {
+            driverRepository.findById(driver.getId()).ifPresent(existing -> {
+                if (driver.getCreatedAt() == null) {
+                    driver.setCreatedAt(existing.getCreatedAt());
+                }
+                if (driver.getCreatedBy() == null || driver.getCreatedBy().isBlank()) {
+                    driver.setCreatedBy(existing.getCreatedBy());
+                }
+                if (driver.getIsDeleted() == null) {
+                    driver.setIsDeleted(existing.getIsDeleted());
+                }
+            });
+        }
         return driverRepository.save(driver);
     }
 
     public void deleteById(Integer id) {
-        driverRepository.deleteById(id);
+        driverRepository.findById(id).ifPresent(driver -> {
+            driver.setIsDeleted(true);
+            driver.setStatus("INACTIVE");
+            driverRepository.save(driver);
+        });
     }
 }
